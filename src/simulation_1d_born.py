@@ -10,100 +10,108 @@ import os
 """
 Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ======================================================
+Emergence of Born's Rule from Local Dynamics.
 
-Ce script simule une dynamique onde-pilote à rétroaction (type gouttelettes marcheuses)
-en 1D pour démontrer l'émergence statistique de la Règle de Born.
+This script simulates a pilot-wave dynamic with feedback (walking droplet type)
+in 1D to demonstrate the statistical emergence of Born's Rule.
 
-Principe Physique :
+Physical Principle:
 -------------------
-Le modèle couple une particule ponctuelle stochastique à un champ scalaire complexe (onde pilote).
-1. L'onde évolue selon une équation de diffusion complexe non-linéaire (Ginzburg-Landau complexe), proche de Schrödinger.
-2. La particule est guidée par le gradient de phase de l'onde (dynamique de Langevin).
-3. La particule agit comme une source mobile pour son propre champ (rétroaction).
+This model couples a stochastic point particle to a complex scalar field (pilot wave).
+1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
+2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
+3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
 
-Résultats :
+Key Result:
 -----------
-Le système est en régime d'expansion libre (diffusion). La simulation montre que la 
-distribution statistique des particules ρ(x, t) épouse dynamiquement la forme du paquet 
-d'onde étalé |ψ(x, t)|²
-Autrement dit la densité de probabilité de présence de la particule ρ(x) converge vers l'intensité
-du champ |ψ|², validant l'hypothèse de la "relaxation quantique" vers la Règle de Born sans postulat axiomatique.
-Ou dit autrement la densité des positions des particules relaxe vers |ψ|², illustrant l'émergence
-de la règle de Born comme propriété statistique (ergodique) du modèle.
+The system is in a state of free expansion (diffusion).
+The simulation demonstrates that the particle's statistical distribution ρ(x)
+dynamically conforms to the shape of the spread wave packet |ψ|².
+In other words, the probability density of the particle's position converges towards 
+the intensity |ψ|² of the  field, validating the dynamical "quantum relaxation"
+towards Born's Rule without axiomatic postulates.
+It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
-Auteur : Revoire Christian
+
+Author : Revoire Christian (Independent Researcher)
 Date   : Janvier 2026
-Dépendances : numpy, matplotlib, numba
+License: MIT
 """
 
-# ===============================
-# PARAMÈTRES
-# ===============================
-# --- Espace & Temps ---
-Nx = 300                                    # Nombre de points de grille
-x_min, x_max = -50, 50                      # Étendue spatiale
-x = np.linspace(x_min, x_max, Nx)           # Initialisation grille
-dx = x[1] - x[0]                            # Pas d'espace    
-dt = 0.01                                   # Pas de temps
-
-# --- Paramètres de Simulation ---
-N_steps = 40000                             # Durée d'une trajectoire
-thermalization = 10000                      # Temps avant début de la collecte statistique
-N_particles = 1200                          # Nombre de particules indépendantes simulées
-N_CORES = -1                                # 0 = auto-detect and use all ; -1 = let 1 free (or more)
-
-# Sous-échantillonnage (1 = tout garder, 10 = 1 point sur 10)
-SUBSAMPLE = 1  
-
-# --- Physique du Champ (Onde Pilote) ---
-# # Équation : ∂t ψ = (Dψ + iω)∇²ψ - γψ + Source      
-c = 1                                       # Vitesse de propagation (c = 1 par choix d'unité)                                       
-gamma = 0.02                                # Dissipation (mémoire du système) 
-D_psi = 0.9                                 # Diffusion spatiale du champ
-emit_amp = 0.57                             # Amplitude d'émission de la source
-sigma_emit = dx * 3                         # Largeur spatiale de la source
-omega = 2.0                                 # Fréquence dispersive (analogue à ℏ/2m)
-
-# --- Physique de la Particule ---
-# # Équation : dx = (α ⋅ ∇φ) dt + bruit
-alpha = 4.0                                 # Coefficient de couplage inertiel (analogue à k/m, = k*2*omega)
-D_x = 0.28                                  # Coefficient de diffusion stochastique (bruit)
-
-# Sécurité
-epsilon = 1e-3                              # Facteur de régularisation pour le guidage
+class SimConfig:
+    # ===============================
+    # PARAMÈTRES
+    # ===============================
+    # --- Espace & Temps ---
+    Nx = 300                                    # Nombre de points de grille
+    x_min, x_max = -50, 50                      # Étendue spatiale
+    x = np.linspace(x_min, x_max, Nx)           # Initialisation grille
+    dx = x[1] - x[0]                            # Pas d'espace    
+    dt = 0.01                                   # Pas de temps
+    
+    # --- Paramètres de Simulation ---
+    N_steps = 40000                             # Durée d'une trajectoire
+    thermalization = 10000                      # Temps avant début de la collecte statistique
+    N_runs = 1200                               # Nombre de particules indépendantes simulées
+    N_CORES = -1                                # 0 = auto-detect and use all ; -1 = let 1 free (or more)
+    
+    # Sous-échantillonnage (1 = tout garder, 10 = 1 point sur 10)
+    SUBSAMPLE = 1  
+    
+    # --- Physique du Champ (Onde Pilote) ---
+    # # Équation : ∂t ψ = (Dψ + iω)∇²ψ - γψ + Source      
+    c = 1                                       # Vitesse de propagation (c = 1 par choix d'unité)                                       
+    gamma = 0.02                                # Dissipation (mémoire du système) 
+    D_psi = 0.9                                 # Diffusion spatiale du champ
+    emit_amp = 0.57                             # Amplitude d'émission de la source
+    sigma_emit = dx * 3                         # Largeur spatiale de la source
+    omega = 2.0                                 # Fréquence dispersive (analogue à ℏ/2m)
+    
+    # --- Physique de la Particule ---
+    # # Équation : dx = (α ⋅ ∇φ) dt + bruit
+    alpha = 4.0                                 # Coefficient de couplage inertiel (analogue à k/m, = k*2*omega)
+    D_x = 0.28                                  # Coefficient de diffusion stochastique (bruit)
+    
+    # Sécurité
+    epsilon = 1e-3                              # Facteur de régularisation pour le guidage
+    
+# Global instance for easy access (can be overridden)
+CFG = SimConfig()
 
 # ===============================
 # MOTEUR NUMBA OPTIMISÉ
 # ===============================
 """
-Le champ ψ(x,t) obéit à une équation de diffusion complexe du type :
+The wave ψ(x,t) evolves according to a complex Ginzburg-Landau equation like :
     ∂t ψ = (Dψ + i ω) ∇²ψ - γ ψ + source
-La vitesse de propagation du champ est fixée à 1 (par choix d'unités),  c = (dx/dt) puis normalisé *(dt/dx)
 """
 
 @njit(fastmath=True)
 def evolve_field_1d(psi, psi_new, lap_buffer, x_p, dt, dx, D_psi, omega, gamma, 
                     emit_amp, sigma_emit, x_min, Nx, c):
     """
-    Évolution du champ pilote avec source mobile.
+    Computes one time-step of the pilot-wave evolution with a moving source.
+    Uses a pre-allocated buffer for the Laplacian to minimize memory allocation.
     """
-    # 1. Laplacien
+    # 1. Compute Laplacian (Finite Differences)
     lap_buffer[:] = 0.0
     for i in range(1, Nx-1):
         lap_buffer[i] = (psi[i+1] - 2*psi[i] + psi[i-1]) / dx**2
     
-    # 2. Mise à jour champ
+    # 2. Field Evolution (Diffusion + Dispersion - Dissipation)
+    # Using explicit Euler method
     for i in range(Nx):
         psi_new[i] = psi[i] + dt * c * ((D_psi + 1j * omega) * lap_buffer[i] - gamma * psi[i])
     
-    # 3. Source mobile (cutoff optimisé)
+    # 3. Inject Source at Particle Position (Optimized with cutoff)
     cutoff = 6.0 * sigma_emit
     idx_center = int(round((x_p - x_min) / dx))
     cutoff_idx = int(cutoff / dx)
     
     i_start = max(0, idx_center - cutoff_idx)
     i_end = min(Nx, idx_center + cutoff_idx + 1)
-    
+
+    # Add Gaussian source
     for i in range(i_start, i_end):
         xi = x_min + i * dx
         dist2 = (xi - x_p)**2
@@ -114,8 +122,8 @@ def evolve_field_1d(psi, psi_new, lap_buffer, x_p, dt, dx, D_psi, omega, gamma,
 @njit(fastmath=True)
 def get_guidance(psi, idx, dx, epsilon):
     """
-    Extrait le gradient de phase pour guidage.
-    Gestion robuste des sauts 2π.
+    Extracts local amplitude and phase gradient for particle guidance.
+    Handles phase wrapping (-π to π).
     """
     if idx < 1 or idx >= len(psi) - 1:
         return 0.0, 0.0
@@ -123,13 +131,15 @@ def get_guidance(psi, idx, dx, epsilon):
     p_plus = psi[idx + 1]
     p_minus = psi[idx - 1]
     
-    # Amplitude locale
+    # Local amplitude check
     amp_loc = np.abs(psi[idx])
     if amp_loc < epsilon:
         return amp_loc, 0.0
     
-    # Gradient de phase
+    # Central difference for phase gradient
     dph = np.angle(p_plus) - np.angle(p_minus)
+
+    # Phase unwrapping
     if dph > np.pi: dph -= 2*np.pi
     elif dph < -np.pi: dph += 2*np.pi
     
@@ -142,16 +152,20 @@ def simulate_single_particle(x_init, N_steps, thermalization, subsample,
                             dt, dx, D_psi, omega, gamma, emit_amp, sigma_emit,
                             alpha, D_x, epsilon, x_min, x_max, Nx, c):
     """
-    Simule une particule unique avec son champ.
+    Full simulation loop for a SINGLE particle.
+    Designed to be run in parallel processes.
     """
-    # Initialisation
+    np.random.seed(seed)
+                                
+    # Initialize Field
     psi = np.zeros(Nx, dtype=np.complex64)
     psi_new = np.zeros_like(psi)
     lap_buffer = np.zeros_like(psi)
-    
+
+    # Initialize Particle (Gaussian start near center)
     x_p = x_init
     
-    # Stockage sous-échantillonné
+    # Data Storage
     n_samples = (N_steps - thermalization) // subsample
     positions = np.zeros(n_samples)
     psi_accumulated = np.zeros(Nx, dtype=np.complex64)
@@ -159,42 +173,46 @@ def simulate_single_particle(x_init, N_steps, thermalization, subsample,
     
     sample_idx = 0
     
-    # Boucle temporelle
+    # --- Time Loop ---
     for t in range(N_steps):
-        # Évolution champ
+        # A. Evolve Field
         psi_new = evolve_field_1d(psi, psi_new, lap_buffer, x_p, dt, dx, 
                                   D_psi, omega, gamma, emit_amp, sigma_emit, 
                                   x_min, Nx, c)
         psi[:] = psi_new[:]
         
-        # Guidage
+        # B. Move Particle
         idx = int(round((x_p - x_min) / dx))
         amp_loc, grad_phase = get_guidance(psi, idx, dx, epsilon)
-        
+
+        # Calculate Drift (Guidance)
+        drift = 0.0
         amp2 = amp_loc**2
         if amp2 > epsilon**2:
             weight = amp2 / (amp2 + epsilon**2)
             drift = alpha * weight * grad_phase
-            if drift > 5.0: drift = 5.0
-            elif drift < -5.0: drift = -5.0
+            # Velocity limiter for stability
+            if drift > 10.0: drift = 10.0
+            elif drift < -10.0: drift = -10.0
         else:
             drift = 0.0
         
-        # Langevin
+        # Langevin Step
         noise = np.sqrt(2 * D_x * dt) * np.random.randn()
         x_p += drift * dt + noise
         
-        # Conditions limites
+        # Boundary Conditions (Hard walls)
         if x_p < x_min + dx: x_p = x_min + dx
         elif x_p > x_max - dx: x_p = x_max - dx
         
-        # Accumulation après thermalisation
+        # C. Data Collection (Post-thermalization)
         if t >= thermalization:
+            # Position Sampling
             if (t - thermalization) % subsample == 0:
                 positions[sample_idx] = x_p
                 sample_idx += 1
             
-            # Accumulation continue du champ
+            # Field Accumulation (Ergodicity check)
             psi_accumulated += psi
             for i in range(Nx):
                 psi2_accumulated[i] += psi[i].real**2 + psi[i].imag**2
@@ -237,22 +255,23 @@ def worker_particle(seed, particle_id, x_space):
 # ===============================
 
 def run_born_simulation():
+    # Detect CPU cores
     n_cores = N_CORES if N_CORES > 0 else max(1, mp.cpu_count() + N_CORES)
     
     # Estimation mémoire
     n_samples_per_particle = (N_steps - thermalization) // SUBSAMPLE
     memory_per_particle_mb = (n_samples_per_particle * 8 + Nx * 16) / (1024**2)
-    total_memory_mb = memory_per_particle_mb * N_particles / n_cores
+    total_memory_mb = memory_per_particle_mb * N_runs / n_cores
     
     print("="*70)
-    print("SIMULATION BORN RULE")
+    print("SIMULATION: BORN RULE EMERGENCE")
     print("="*70)
     print(f"Configuration :")
-    print(f"  - Cœurs CPU : {n_cores}/{mp.cpu_count()}")
-    print(f"  - Particules : {N_particles}")
-    print(f"  - Steps/particule : {N_steps}")
-    print(f"  - Mémoire estimée : {total_memory_mb:.1f} MB")
-    print(f"\nParamètres physiques :")
+    print(f"  - CPU Cores: {n_cores}/{mp.cpu_count()}")
+    print(f"  - Particles: {N_runs}")
+    print(f"  - Steps/Particle: {N_steps}")
+    print(f"  - Mémoire estimée: {total_memory_mb:.1f} MB")
+    print(f"\nPhysics :")
     print(f"  γ={gamma}, D_ψ={D_psi}, ω={omega}, α={alpha}, Bruit={D_x}, amp={emit_amp}")
     print("="*70)
     
@@ -261,26 +280,26 @@ def run_born_simulation():
     start_time = time.time()
     
     # ========================================
-    # PARALLÉLISATION JOBLIB
+    # PARALLELISATION JOBLIB
     # ========================================
-    print("\n🚀 Lancement des simulations parallèles...\n")
+    print("\n🚀 Starting parallel simulations...\n")
     
     results = Parallel(n_jobs=n_cores, backend='loky', verbose=0)(
         delayed(worker_particle)(
             seed=42 + p*1000,
             particle_id=p,
             x_space=x_space
-        ) for p in tqdm(range(N_particles), desc="Particules")
+        ) for p in tqdm(range(N_runs), desc="Simulating Particles")
     )
     
     elapsed = time.time() - start_time
-    print(f"\n✓ Simulation terminée en {elapsed/60:.2f} min")
-    print(f"  Vitesse : {N_particles * N_steps / elapsed / 1000:.1f}k steps/sec")
+    print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
+    print(f"  Speed : {N_runs * N_steps / elapsed / 1000:.1f}k steps/sec")
     
     # ========================================
-    # AGRÉGATION DES RÉSULTATS
+    # AGGREGATING RESULTS
     # ========================================
-    print("\n📊 Agrégation des statistiques...")
+    print("\n📊 Aggregating statistics...")
     
     rho = np.zeros(Nx)
     psi_acc = np.zeros(Nx, dtype=np.complex128)
@@ -440,7 +459,7 @@ def plot_results(x_space, rho, born, rho_qm):
     plt.tight_layout()
     
     # Sauvegarde
-    base_name = f"Born_Rule_N{N_particles}"
+    base_name = f"Born_Rule_N{N_runs}"
     i = 1
     while os.path.exists(f"{base_name}_V{i}.png"):
         i += 1
