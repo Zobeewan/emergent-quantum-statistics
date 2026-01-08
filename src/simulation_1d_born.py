@@ -52,7 +52,7 @@ class SimConfig:
     # --- Simulation Parameters ---
     N_steps = 40000                             # Steps per particle
     thermalization = 10000                      # Steps to ignore (warmup)
-    N_runs = 1200                               # Number of independent simulated particles
+    N_runs = 6000                               # Number of independent simulated particles
     N_CORES = -1                                # 0 = auto-detect and use all ; -1 = keep one core free (or more)
     
     # Subsampling 
