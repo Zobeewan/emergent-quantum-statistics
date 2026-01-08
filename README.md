@@ -6,6 +6,7 @@ Date: Jan 2026
 
 This repository contains the high-performance Python/Numba implementation of a local hidden variable model inspired by walking droplets (Couder/Fort/Bush). The simulation demonstrates that Born's Rule and Pauli Exclusion can emerge from a purely local, deterministic wave-particle dynamics with feedback.
 
+
 📁 Key Results & Scripts
 
 1. Born Rule Convergence (1D)
@@ -16,7 +17,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     Result: Empirical density ρ(x) converges to ∣ψ∣2 with high correlation and low error L1.
 
-    Performance: ~5-15 minutes (depending on CPU cores).
+    Performance: ~2-10 minutes (depending on CPU cores).
 
 2. Pauli Exclusion Principle (1D)
 
@@ -35,6 +36,7 @@ This repository contains the high-performance Python/Numba implementation of a l
     Physics: 2D extension showing that the probability current J generates local vortex structures (emergent spin) from a scalar field.
 
     Performance: ~30-120 minutes depending on CPU cores.
+
 
 
 🛠️ Installation & Usage
