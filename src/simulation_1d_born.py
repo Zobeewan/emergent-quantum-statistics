@@ -48,6 +48,7 @@ CFG = Base_Config()
 Nx: int = 300                                     # Grid size (x)
 x_min: float = -50                                # Spatial extent (x)
 x_max: float = 50                                 # Spatial extent (x)
+dx: float = (x_max - x_min) / Nx                  # Space step
 dt: float = 0.01                                  # Time step
 
 # --- Simulation Parameters ---
@@ -75,13 +76,6 @@ D_x: float = 0.28                                 # Stochastic diffusion (Browni
 
 # Sécurité
 epsilon: float = 1e-3                             # Regularization factor for guidance
-
-def __init__(self):
-    # Derived parameters
-    self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
-    self.dx = self.x[1] - self.x[0]                              # Space step
-    # Adjust source width relative to grid
-    self.sigma_emit_scaled = self.dx * 3.0
 
 # ===============================
 # OPTIMIZED NUMBA ENGINE
