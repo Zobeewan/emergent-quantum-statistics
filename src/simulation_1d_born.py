@@ -39,7 +39,7 @@ License: MIT
 """
 
 # ===============================
-# CONFIGURATION LOAD
+# CONFIGURATION IMPORT
 # ===============================
 try:
     from src.config import Base_Config
@@ -47,18 +47,23 @@ except ImportError:
     try:
         from config import Base_Config
     except ImportError:
-        print("CRITICAL ERROR: 'config.py' not found.")
-        print("Please ensure 'config.py' is in the same directory or in 'src/'.")
-        raise
-
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        if current_dir not in sys.path:
+            sys.path.append(current_dir)
+        try:
+            from config import Base_Config
+        except ImportError:
+            print("CRITICAL ERROR: 'config.py' not found.")
+            print("Please ensure 'config.py' is in the same directory than this script or in 'src/'.")
+            raise
+            
+# Load Configuration
 CFG = Base_Config()
 
 """
 Parameters are loaded from config.py.
 
 To change physics or simulation settings, edit 'src/config.py' 
-
-If CRITICAL ERROR reamain try changing filepath in: 'from filepath.config import Base_Config' in accordance with your 'filepath/config.py'.
 """
 
 # ===============================
