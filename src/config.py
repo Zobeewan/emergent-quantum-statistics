@@ -42,19 +42,20 @@ class Base_Config:                 # (Opti for Born 1D)
         # Adjust source width relative to grid
         self.sigma_emit_scaled = self.dx * 3.0
         
-class Pauli_Config(Base_Config):    # (Opti for pauli 1D)
+--------------        
+class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     # --- Space & Time ---
-    x_min: float = -50.0          # Spatial extent (x) (left) 
-    x_max: float = 50.0           # Spatial extent (x) (right)
+    x_min: float = -150.0          # Spatial extent (x) (left) 
+    x_max: float = 150.0           # Spatial extent (x) (right)
     
     # --- Simulation Control ---
-    N_runs: int = 1200            # Number of independent simulated particles
+    N_runs: int = 1200             # Number of independent simulated particles
 
-
-class Born_2D_Config(Base_Config):    # (Opti for pauli 1D)
+-------------- 
+class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
-    x_min: float = -50.0          # Spatial extent (x) (left) 
-    x_max: float = 50.0           # Spatial extent (x) (right)
+    x_min: float = -125.0          # Spatial extent (x) (left) 
+    x_max: float = 125.0           # Spatial extent (x) (right)
     
     # --- Simulation Control ---
-    N_runs: int = 1200            # Number of independent simulated particles
+    N_runs: int = 600            # Number of independent simulated particles
