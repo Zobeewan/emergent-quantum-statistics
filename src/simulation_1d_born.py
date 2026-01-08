@@ -41,14 +41,24 @@ License: MIT
 # ===============================
 # CONFIGURATION LOAD
 # ===============================
-from src.config import Base_Config
+try:
+    from src.config import Base_Config
+except ImportError:
+    try:
+        from config import Base_Config
+    except ImportError:
+        print("CRITICAL ERROR: 'config.py' not found.")
+        print("Please ensure 'config.py' is in the same directory or in 'src/'.")
+        raise
+
 CFG = Base_Config()
 
 """
-WParameters are loaded from config.py.
+Parameters are loaded from config.py.
+
 To change physics or simulation settings, edit 'src/config.py' 
 
-If Import Error try changing filepath in: 'from filepath.config import Base_Config' in accordance with your 'filepath/config.py'.
+If CRITICAL ERROR reamain try changing filepath in: 'from filepath.config import Base_Config' in accordance with your 'filepath/config.py'.
 """
 
 # ===============================
@@ -359,7 +369,7 @@ def compare_schrodinger(x_space, sigma_x_model):
         # Free evolution
         lap_qm = np.zeros_like(psi_qm)
         lap_qm[1:-1] = (psi_qm[2:] - 2*psi_qm[1:-1] + psi_qm[:-2]) / dx_local**2
-        psi_qm += CFG.dt * (1j * CFG.omega * CFG.lap_qm)
+        psi_qm += CFG.dt * (1j * CFG.omega * lap_qm)
         
         # Normalization
         norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
