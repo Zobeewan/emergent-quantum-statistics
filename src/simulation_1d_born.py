@@ -28,7 +28,7 @@ The system is in a state of free expansion (diffusion).
 The simulation demonstrates that the particle's statistical distribution ρ(x)
 dynamically conforms to the shape of the spread wave packet |ψ|².
 In other words, the probability density of the particle's position converges towards 
-the intensity |ψ|² of the  field, validating the dynamical "quantum relaxation"
+the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
 towards Born's Rule without axiomatic postulates.
 It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
