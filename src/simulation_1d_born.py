@@ -41,14 +41,14 @@ License: MIT
 # ===============================
 # CONFIGURATION LOAD
 # ===============================
-from config import Base_Config
+from src.config import Base_Config
 CFG = Base_Config()
 
 """
 WParameters are loaded from config.py.
-To change physics or simulation settings, edit 'config.py' 
+To change physics or simulation settings, edit 'src/config.py' 
 
-If Import Error try changing 'from filepath.config import Base_Config' in accordance with 'filepath/config.py'.
+If Import Error try changing filepath in: 'from filepath.config import Base_Config' in accordance with your 'filepath/config.py'.
 """
 
 # ===============================
