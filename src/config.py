@@ -3,11 +3,11 @@ class SimConfig:
     Nx: int = 300                 # Grid size (x)
     Ny: int = 300                 # Grid size (y), Only use on 2D simulation
     
-    x_min: float = -50.0          # Spatial extent (left)
-    x_max: float = 50.0           # Spatial extent (right)
+    x_min: float = -50.0          # Spatial extent (x) (left) 
+    x_max: float = 50.0           # Spatial extent (x) (right)
     
-    y_min: float = -50.0          # Spatial extent (left)
-    y_max: float = 50.0           # Spatial extent (right)
+    y_min: float = -50.0          # Spatial extent (y) (left), Only use on 2D simulation
+    y_max: float = 50.0           # Spatial extent (y) (right), Only use on 2D simulation
     
     dt: float = 0.01              # Time step
     
@@ -32,13 +32,6 @@ class SimConfig:
     alpha: float = 4.0            # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
     D_x: float = 0.28             # Stochastic diffusion (Brownian noise)
     epsilon: float = 1e-3         # Regularization factor for guidance
-    
-    def __init__(self):
-        # Derived parameters
-        self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
-        self.dx = self.x[1] - self.x[0]                              # Space step
-        # Adjust source width relative to grid
-        self.sigma_emit_scaled = self.dx * 3.0
     
 # Global instance for easy access (can be overridden)
 CFG = SimConfig()
