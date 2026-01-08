@@ -42,39 +42,37 @@ License: MIT
 # PARAMETERS
 # ===============================
 class SimConfig:
-    
     # --- Space & Time ---
-    Nx = 300                                    # Grid size (x)
-    x_min, x_max = -50, 50                      # Spatial extent (x)
-    x = np.linspace(x_min, x_max, Nx)           # Grid initialization 
-    dx = x[1] - x[0]                            # Spatial step   
-    dt = 0.01                                   # Time step
+    Nx: int = 300                                     # Grid size (x)
+    x_min: float = -50                                # Spatial extent (x)
+    x_max: float = 50                                 # Spatial extent (x)
+    dt: float = 0.01                                  # Time step
     
     # --- Simulation Parameters ---
-    N_steps = 40000                             # Steps per particle
-    thermalization = 10000                      # Steps to ignore (warmup)
-    N_runs = 6000                               # Number of independent simulated particles
-    N_CORES = -1                                # 0 = auto-detect and use all ; -1 = keep one core free (or more)
+    N_steps: int = 40000                              # Steps per particle
+    thermalization: int = 10000                       # Steps to ignore (warmup)
+    N_runs: int = 6000                                # Number of independent simulated particles
+    N_CORES: int = -1                                 # 0 = auto-detect and use all ; -1 = keep one core free (or more)
     
     # Subsampling 
-    SUBSAMPLE = 1                               # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
+    SUBSAMPLE: int = 1                                # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
     
     # --- Field Physics (Pilot Wave) ---
     # Equation: ∂t ψ = (Dψ + iω)∇²ψ − γψ + source   
-    c = 1                                       # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)                                    
-    gamma = 0.02                                # Dissipation (system memory)
-    D_psi = 0.9                                 # Spatial diffusion of the field
-    emit_amp = 0.57                             # Source emission amplitude
-    sigma_emit = dx * 3                         # Spatial width of the source
-    omega = 2.0                                 # Dispersive frequency (analogous to ℏ/2m)
+    c: float = 1                                      # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)                                    
+    gamma: float = 0.02                               # Dissipation (system memory)
+    D_psi: float = 0.9                                # Spatial diffusion of the field
+    emit_amp: float = 0.57                            # Source emission amplitude
+    sigma_emit: float = dx * 3                        # Spatial width of the source
+    omega: float = 2.0                                # Dispersive frequency (analogous to ℏ/2m)
     
     # --- Particle Physics ---
     # Equation: dx = (α ⋅ ∇φ) dt + noise
-    alpha = 4.0                                 # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
-    D_x = 0.28                                  # Stochastic diffusion (Brownian noise)
+    alpha: float = 4.0                                # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
+    D_x: float = 0.28                                 # Stochastic diffusion (Brownian noise)
     
     # Sécurité
-    epsilon = 1e-3                              # Regularization factor for guidance
+    epsilon: float = 1e-3                             # Regularization factor for guidance
     
     def __init__(self):
         # Derived parameters
@@ -95,8 +93,8 @@ The wave ψ(x,t) evolves according to a complex Ginzburg-Landau equation like :
 """
 
 @njit(fastmath=True)
-def evolve_field_1d(psi, psi_new, lap_buffer, x_p, dt, dx, D_psi, omega, gamma, 
-                    emit_amp, sigma_emit, x_min, Nx, c):
+def evolve_field_1d(psi: np.ndarray, psi_new: np.ndarray, lap_buffer: np.ndarray, x_p: float, dt: float, dx: float, D_psi: float, omega: float, gamma: float, 
+                    emit_amp: float, sigma_emit: float, x_min: float, Nx: int, c: float):
     """
     Computes one time-step of the pilot-wave evolution with a moving source.
     Uses a pre-allocated buffer for the Laplacian to minimize memory allocation.
@@ -128,7 +126,7 @@ def evolve_field_1d(psi, psi_new, lap_buffer, x_p, dt, dx, D_psi, omega, gamma,
     return psi_new
 
 @njit(fastmath=True)
-def get_guidance(psi, idx, dx, epsilon):
+def get_guidance(psi: np.ndarray, idx: int, dx: float, epsilon: float):
     """
     Extracts local amplitude and phase gradient for particle guidance.
     Handles phase wrapping (-π to π).
@@ -156,14 +154,13 @@ def get_guidance(psi, idx, dx, epsilon):
     return amp_loc, grad_phase
 
 @njit(fastmath=True)
-def simulate_single_particle(x_init, N_steps, thermalization, subsample,
-                            dt, dx, D_psi, omega, gamma, emit_amp, sigma_emit,
-                            alpha, D_x, epsilon, x_min, x_max, Nx, c):
+def simulate_single_particle(x_init: float, N_steps: int, thermalization: int, subsample: int,
+                            dt: float, dx: float, D_psi: float, omega: float, gamma: float, emit_amp: float, sigma_emit: float,
+                            alpha: float, D_x: float, epsilon: float, x_min: float, x_max: float, Nx: int, c: float):
     """
     Full simulation loop for a SINGLE particle.
     Designed to be run in parallel processes.
     """
-    np.random.seed(seed)
                                 
     # Initialize Field
     psi = np.zeros(Nx, dtype=np.complex64)
@@ -242,14 +239,14 @@ def worker_particle(seed, particle_id, x_space):
     
     # Simulation
     positions, psi_acc, psi2_acc = simulate_single_particle(
-        x_init, N_steps, thermalization, SUBSAMPLE,
-        dt, dx, D_psi, omega, gamma, emit_amp, sigma_emit,
-        alpha, D_x, epsilon, x_min, x_max, Nx, c
+        x_init, CFG.N_steps, CFG.thermalization, CFG.SUBSAMPLE,
+        CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma, CFG.emit_amp, CFG.sigma_emit,
+        CFG.alpha, CFG.D_x, CFG.epsilon, CFG.x_min, CFG.x_max, CFG.Nx, CFG.c
     )
     
     # Position histogram (lightweight)
     hist, _ = np.histogram(positions, bins=len(x_space), 
-                          range=(x_min, x_max))
+                          range=(CFG.x_min, CFG.x_max))
     
     return {
         'histogram': hist.astype(np.float32),
@@ -264,7 +261,7 @@ def worker_particle(seed, particle_id, x_space):
 
 def run_born_simulation():
     # Detect CPU cores
-    n_cores = N_CORES if N_CORES > 0 else max(1, mp.cpu_count() + N_CORES)
+    n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
     
     # Memory estimation
     n_samples_per_particle = (N_steps - thermalization) // SUBSAMPLE
@@ -276,14 +273,14 @@ def run_born_simulation():
     print("="*70)
     print(f"Configuration:")
     print(f"  - CPU Cores: {n_cores}/{mp.cpu_count()}")
-    print(f"  - Particles: {N_runs}")
-    print(f"  - Steps/Particle: {N_steps}")
+    print(f"  - Particles: {CFG.N_runs}")
+    print(f"  - Steps/Particle: {CFG.N_steps}")
     print(f"  - Estimated memory: {total_memory_mb:.1f} MB")
     print(f"\nPhysics :")
-    print(f"  γ={gamma}, D_ψ={D_psi}, ω={omega}, α={alpha}, Bruit={D_x}, amp={emit_amp}")
+    print(f"  γ={CFG.gamma}, D_ψ={CFG.D_psi}, ω={CFG.omega}, α={CFG.alpha}, Bruit={CFG.D_x}, amp={CFG.emit_amp}")
     print("="*70)
     
-    x_space = np.linspace(x_min, x_max, Nx)
+    x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
     
     start_time = time.time()
     
@@ -297,21 +294,21 @@ def run_born_simulation():
             seed=42 + p*1000,
             particle_id=p,
             x_space=x_space
-        ) for p in tqdm(range(N_runs), desc="Simulating Particles")
+        ) for p in tqdm(range(CFG.N_runs), desc="Simulating Particles")
     )
     
     elapsed = time.time() - start_time
     print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
-    print(f"  Speed : {N_runs * N_steps / elapsed / 1000:.1f}k steps/sec")
+    print(f"  Speed : {CFG.N_runs * CFG.N_steps / elapsed / 1000:.1f}k steps/sec")
     
     # ========================================
     # AGGREGATING RESULTS
     # ========================================
     print("\n📊 Aggregating statistics...")
     
-    rho = np.zeros(Nx)
-    psi_acc = np.zeros(Nx, dtype=np.complex128)
-    psi2_acc = np.zeros(Nx)
+    rho = np.zeros(CFG.Nx)
+    psi_acc = np.zeros(CFG.Nx, dtype=np.complex128)
+    psi2_acc = np.zeros(CFG.Nx, dtype=np.float64)
     total_samples = 0
     
     for res in tqdm(results, desc="Fusion"):
@@ -321,7 +318,7 @@ def run_born_simulation():
         total_samples += res['n_samples']
     
     # Normalization
-    rho /= (np.sum(rho) * dx)
+    rho /= (np.sum(rho) * CFG.dx)
     psi_acc /= total_samples
     psi2_acc /= total_samples
     
@@ -395,7 +392,7 @@ def compare_schrodinger(x_space, sigma_x_model):
         # Free evolution
         lap_qm = np.zeros_like(psi_qm)
         lap_qm[1:-1] = (psi_qm[2:] - 2*psi_qm[1:-1] + psi_qm[:-2]) / dx_local**2
-        psi_qm += dt * (1j * omega * lap_qm)
+        psi_qm += CFG.dt * (1j * CFG.omega * CFG.lap_qm)
         
         # Normalization
         norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
@@ -412,7 +409,7 @@ def compare_schrodinger(x_space, sigma_x_model):
             print(f"SCHRÖDINGER COMPARISON")
             print(f"{'='*70}")
             print(f"Convergence in {steps} QM steps")
-            print(f"Temporal ratio: τ_hydro/τ_QM = {N_steps/steps:.2f}")
+            print(f"Temporal ratio: τ_hydro/τ_QM = {CFG.N_steps/steps:.2f}")
             break
         
         steps += 1
@@ -468,7 +465,7 @@ def plot_results(x_space, rho, born, rho_qm):
     plt.tight_layout()
     
     # Save figure
-    base_name = f"Born_Rule_N{N_runs}"
+    base_name = f"Born_Rule_N{CFG.N_runs}"
     i = 1
     while os.path.exists(f"{base_name}_V{i}.png"):
         i += 1
