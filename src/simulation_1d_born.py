@@ -42,7 +42,7 @@ License: MIT
 # PARAMETERS
 # ===============================
 from src.config import SimConfig
-CFG = SimConfig()
+CFG = Base_Config()
 
 class SimConfig:
     # --- Space & Time ---
