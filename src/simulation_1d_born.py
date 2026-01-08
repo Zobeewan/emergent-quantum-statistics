@@ -44,18 +44,8 @@ License: MIT
 try:
     from src.config import Base_Config
 except ImportError:
-    try:
-        from config import Base_Config
-    except ImportError:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        if current_dir not in sys.path:
-            sys.path.append(current_dir)
-        try:
-            from config import Base_Config
-        except ImportError:
-            print("CRITICAL ERROR: 'config.py' not found.")
-            print("Please ensure 'config.py' is in the same directory than this script or in 'src/'.")
-            raise
+    from config import Base_Config
+
             
 # Load Configuration
 CFG = Base_Config()
