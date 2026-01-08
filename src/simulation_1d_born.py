@@ -44,45 +44,44 @@ License: MIT
 from src.config import SimConfig
 CFG = Base_Config()
 
-class SimConfig:
-    # --- Space & Time ---
-    Nx: int = 300                                     # Grid size (x)
-    x_min: float = -50                                # Spatial extent (x)
-    x_max: float = 50                                 # Spatial extent (x)
-    dt: float = 0.01                                  # Time step
-    
-    # --- Simulation Parameters ---
-    N_steps: int = 40000                              # Steps per particle
-    thermalization: int = 10000                       # Steps to ignore (warmup)
-    N_runs: int = 6000                                # Number of independent simulated particles
-    N_CORES: int = -1                                 # 0 = auto-detect and use all ; -1 = keep one core free (or more)
-    
-    # Subsampling 
-    SUBSAMPLE: int = 1                                # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
-    
-    # --- Field Physics (Pilot Wave) ---
-    # Equation: ∂t ψ = (Dψ + iω)∇²ψ − γψ + source   
-    c: float = 1                                      # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)                                    
-    gamma: float = 0.02                               # Dissipation (system memory)
-    D_psi: float = 0.9                                # Spatial diffusion of the field
-    emit_amp: float = 0.57                            # Source emission amplitude
-    sigma_emit: float = dx * 3                        # Spatial width of the source
-    omega: float = 2.0                                # Dispersive frequency (analogous to ℏ/2m)
-    
-    # --- Particle Physics ---
-    # Equation: dx = (α ⋅ ∇φ) dt + noise
-    alpha: float = 4.0                                # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
-    D_x: float = 0.28                                 # Stochastic diffusion (Brownian noise)
-    
-    # Sécurité
-    epsilon: float = 1e-3                             # Regularization factor for guidance
-    
-    def __init__(self):
-        # Derived parameters
-        self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
-        self.dx = self.x[1] - self.x[0]                              # Space step
-        # Adjust source width relative to grid
-        self.sigma_emit_scaled = self.dx * 3.0
+# --- Space & Time ---
+Nx: int = 300                                     # Grid size (x)
+x_min: float = -50                                # Spatial extent (x)
+x_max: float = 50                                 # Spatial extent (x)
+dt: float = 0.01                                  # Time step
+
+# --- Simulation Parameters ---
+N_steps: int = 40000                              # Steps per particle
+thermalization: int = 10000                       # Steps to ignore (warmup)
+N_runs: int = 6000                                # Number of independent simulated particles
+N_CORES: int = -1                                 # 0 = auto-detect and use all ; -1 = keep one core free (or more)
+
+# Subsampling 
+SUBSAMPLE: int = 1                                # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
+
+# --- Field Physics (Pilot Wave) ---
+# Equation: ∂t ψ = (Dψ + iω)∇²ψ − γψ + source   
+c: float = 1                                      # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)                                    
+gamma: float = 0.02                               # Dissipation (system memory)
+D_psi: float = 0.9                                # Spatial diffusion of the field
+emit_amp: float = 0.57                            # Source emission amplitude
+sigma_emit: float = dx * 3                        # Spatial width of the source
+omega: float = 2.0                                # Dispersive frequency (analogous to ℏ/2m)
+
+# --- Particle Physics ---
+# Equation: dx = (α ⋅ ∇φ) dt + noise
+alpha: float = 4.0                                # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
+D_x: float = 0.28                                 # Stochastic diffusion (Brownian noise)
+
+# Sécurité
+epsilon: float = 1e-3                             # Regularization factor for guidance
+
+def __init__(self):
+    # Derived parameters
+    self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
+    self.dx = self.x[1] - self.x[0]                              # Space step
+    # Adjust source width relative to grid
+    self.sigma_emit_scaled = self.dx * 3.0
 
 # ===============================
 # OPTIMIZED NUMBA ENGINE
