@@ -40,46 +40,46 @@ License: MIT
 
 class SimConfig:
     # ===============================
-    # PARAMÈTRES
+    # PARAMETERS
     # ===============================
-    # --- Espace & Temps ---
-    Nx = 300                                    # Nombre de points de grille
-    x_min, x_max = -50, 50                      # Étendue spatiale
-    x = np.linspace(x_min, x_max, Nx)           # Initialisation grille
-    dx = x[1] - x[0]                            # Pas d'espace    
-    dt = 0.01                                   # Pas de temps
+    # --- Space & Time ---
+    Nx = 300                                    # Number of grid points
+    x_min, x_max = -50, 50                      # Spatial extent
+    x = np.linspace(x_min, x_max, Nx)           # Grid initialization
+    dx = x[1] - x[0]                            # Spatial step   
+    dt = 0.01                                   # Time step
     
-    # --- Paramètres de Simulation ---
-    N_steps = 40000                             # Durée d'une trajectoire
-    thermalization = 10000                      # Temps avant début de la collecte statistique
-    N_runs = 1200                               # Nombre de particules indépendantes simulées
-    N_CORES = -1                                # 0 = auto-detect and use all ; -1 = let 1 free (or more)
+    # --- Simulation Parameters ---
+    N_steps = 40000                             # Duration of a single trajectory
+    thermalization = 10000                      # Time before statistical collection starts
+    N_runs = 1200                               # Number of independent simulated particles
+    N_CORES = -1                                # 0 = auto-detect and use all ; -1 = keep one core free (or more)
     
-    # Sous-échantillonnage (1 = tout garder, 10 = 1 point sur 10)
-    SUBSAMPLE = 1  
+    # Subsampling 
+    SUBSAMPLE = 1                               # 1 = keep all points, 10 = keep 1 point out of 10
     
-    # --- Physique du Champ (Onde Pilote) ---
-    # # Équation : ∂t ψ = (Dψ + iω)∇²ψ - γψ + Source      
-    c = 1                                       # Vitesse de propagation (c = 1 par choix d'unité)                                       
-    gamma = 0.02                                # Dissipation (mémoire du système) 
-    D_psi = 0.9                                 # Diffusion spatiale du champ
-    emit_amp = 0.57                             # Amplitude d'émission de la source
-    sigma_emit = dx * 3                         # Largeur spatiale de la source
-    omega = 2.0                                 # Fréquence dispersive (analogue à ℏ/2m)
+    # --- Field Physics (Pilot Wave) ---
+    # Equation: ∂t ψ = (Dψ + iω)∇²ψ − γψ + source   
+    c = 1                                       # Propagation speed (c = 1 by choice of units)                                    
+    gamma = 0.02                                # Dissipation (system memory)
+    D_psi = 0.9                                 # Spatial diffusion of the field
+    emit_amp = 0.57                             # Source emission amplitude
+    sigma_emit = dx * 3                         # Spatial width of the source
+    omega = 2.0                                 # Dispersive frequency (analogous to ℏ/2m)
     
-    # --- Physique de la Particule ---
-    # # Équation : dx = (α ⋅ ∇φ) dt + bruit
-    alpha = 4.0                                 # Coefficient de couplage inertiel (analogue à k/m, = k*2*omega)
-    D_x = 0.28                                  # Coefficient de diffusion stochastique (bruit)
+    # --- Particle Physics ---
+    # Equation: dx = (α ⋅ ∇φ) dt + noise
+    alpha = 4.0                                 # Inertial coupling coefficient (analogous to k/m, equal to 2ω mean k=1)
+    D_x = 0.28                                  # Stochastic diffusion (noise)
     
     # Sécurité
-    epsilon = 1e-3                              # Facteur de régularisation pour le guidage
+    epsilon = 1e-3                              # Regularization factor for guidance
     
 # Global instance for easy access (can be overridden)
 CFG = SimConfig()
 
 # ===============================
-# MOTEUR NUMBA OPTIMISÉ
+# OPTIMIZED NUMBA ENGINE
 # ===============================
 """
 The wave ψ(x,t) evolves according to a complex Ginzburg-Landau equation like :
@@ -220,16 +220,16 @@ def simulate_single_particle(x_init, N_steps, thermalization, subsample,
     return positions, psi_accumulated, psi2_accumulated
 
 # ===============================
-# WORKER PARALLÈLE
+# PARALLEL WORKER
 # ===============================
 
 def worker_particle(seed, particle_id, x_space):
     """
-    Worker exécuté sur un cœur CPU séparé.
+    Worker executed on a each CPU core.
     """
     np.random.seed(seed)
     
-    # Position initiale
+    # Initial position
     x_init = np.random.normal(0, 1.0)
     
     # Simulation
@@ -239,7 +239,7 @@ def worker_particle(seed, particle_id, x_space):
         alpha, D_x, epsilon, x_min, x_max, Nx, c
     )
     
-    # Histogramme des positions (léger)
+    # Position histogram (lightweight)
     hist, _ = np.histogram(positions, bins=len(x_space), 
                           range=(x_min, x_max))
     
@@ -251,14 +251,14 @@ def worker_particle(seed, particle_id, x_space):
     }
 
 # ===============================
-# SIMULATION PRINCIPALE
+# MAIN SIMULATION
 # ===============================
 
 def run_born_simulation():
     # Detect CPU cores
     n_cores = N_CORES if N_CORES > 0 else max(1, mp.cpu_count() + N_CORES)
     
-    # Estimation mémoire
+    # Memory estimation
     n_samples_per_particle = (N_steps - thermalization) // SUBSAMPLE
     memory_per_particle_mb = (n_samples_per_particle * 8 + Nx * 16) / (1024**2)
     total_memory_mb = memory_per_particle_mb * N_runs / n_cores
@@ -266,11 +266,11 @@ def run_born_simulation():
     print("="*70)
     print("SIMULATION: BORN RULE EMERGENCE")
     print("="*70)
-    print(f"Configuration :")
+    print(f"Configuration:")
     print(f"  - CPU Cores: {n_cores}/{mp.cpu_count()}")
     print(f"  - Particles: {N_runs}")
     print(f"  - Steps/Particle: {N_steps}")
-    print(f"  - Mémoire estimée: {total_memory_mb:.1f} MB")
+    print(f"  - Estimated memory: {total_memory_mb:.1f} MB")
     print(f"\nPhysics :")
     print(f"  γ={gamma}, D_ψ={D_psi}, ω={omega}, α={alpha}, Bruit={D_x}, amp={emit_amp}")
     print("="*70)
@@ -280,7 +280,7 @@ def run_born_simulation():
     start_time = time.time()
     
     # ========================================
-    # PARALLELISATION JOBLIB
+    # JOBLIB PARALLELIZATION
     # ========================================
     print("\n🚀 Starting parallel simulations...\n")
     
@@ -312,7 +312,7 @@ def run_born_simulation():
         psi2_acc += res['psi2_acc']
         total_samples += res['n_samples']
     
-    # Normalisation
+    # Normalization
     rho /= (np.sum(rho) * dx)
     psi_acc /= total_samples
     psi2_acc /= total_samples
@@ -323,12 +323,12 @@ def run_born_simulation():
     return x_space, rho, born, psi_acc
 
 # ===============================
-# ANALYSE QUANTIQUE
+# QUANTUM ANALYSIS
 # ===============================
 
 def compute_hbar_effective(x_space, rho, psi_acc):
     """
-    Calcule ℏ effectif via relation d'Heisenberg.
+    Computes the effective ℏ via the Heisenberg uncertainty relation.
     """
     dx_local = x_space[1] - x_space[0]
     
@@ -336,7 +336,7 @@ def compute_hbar_effective(x_space, rho, psi_acc):
     mean_x = np.trapz(x_space * rho, x_space)
     sigma_x = np.sqrt(np.trapz((x_space - mean_x)**2 * rho, x_space))
     
-    # 2. Impulsion (FFT)
+    # 2. Momentum  (FFT)
     psi_normalized = psi_acc / np.sqrt(np.sum(np.abs(psi_acc)**2) * dx_local)
     psi_k = np.fft.fftshift(np.fft.fft(psi_normalized))
     freqs = np.fft.fftshift(np.fft.fftfreq(len(x_space), dx_local))
@@ -348,31 +348,32 @@ def compute_hbar_effective(x_space, rho, psi_acc):
     mean_k = np.trapz(k_vals * rho_k, k_vals)
     sigma_k = np.sqrt(np.trapz((k_vals - mean_k)**2 * rho_k, k_vals))
     
-    # 3. ℏ effectif via Heisenberg
-    # Pour état minimal : Δx·Δp = ℏ/2 (si p = ℏk)
+    # 3. Effective ℏ from Heisenberg
+    # For a minimal state: Δx·Δp = ℏ/2 (with p = ℏk)
     
-    hbar_eff = 2 * sigma_x * sigma_k   # Produit d'incertitude
+    hbar_eff = 2 * sigma_x * sigma_k   # Uncertainty Product
     
     print(f"\n{'='*70}")
-    print(f"MESURE DE ℏ ÉMERGENT")
+    print(f"EMERGENT ℏ MEASUREMENT")
     print(f"{'='*70}")
     print(f"σ_x  = {sigma_x:.4f}")
     print(f"σ_k  = {sigma_k:.4f}")
-    print(f"ℏ_eff = {hbar_eff:.4f} (produit d'incertitude)")
+    print(f"ℏ_eff = {hbar_eff:.4f} (uncertainty product)")
     
     return hbar_eff, sigma_x
 
 def compare_schrodinger(x_space, sigma_x_model):
     """
-    Le modèle simule un paquet d'onde libre qui s'étale indéfiniment (régime diffusif).
-    Pour valider la forme du paquet, nous comparons l'état final de la simulation (à t_sim)
-    avec un "instantané" de l'évolution de Schrödinger à un temps t_QM équivalent.
+    The model simulates a freely spreading wave packet (diffusive regime).
+    To validate the packet shape, we compare the final simulation state (at t_sim)
+    with a snapshot of Schrödinger evolution at an quantum time t_QM.
     
-    La boucle ci-dessous cherche l'instant t_QM où la largeur du paquet quantique (σ_qm) égale celle du modèle (σ_x).
-    Cela permet d'établir le facteur d'échelle temporel entre les deux dynamiques.
-    => τ_stochastique / τ_Schrödinger
+    The loop below searches for the quantum time t_QM at which the width of the
+    quantum packet (σ_qm) matches the model width (σ_x).
     
-    Relation : steps ∝ σ²/(ω·dt) approximativement
+    This establishes the temporal scaling factor between the two dynamics: τ_stochastic / τ_Schrödinger
+    
+    Approximate relation: steps ∝ σ² / (ω·dt)
     """
   
     dx_local = x_space[1] - x_space[0]
@@ -383,16 +384,16 @@ def compare_schrodinger(x_space, sigma_x_model):
     max_steps = 50000
     
     while steps < max_steps:
-        # Évolution libre
+        # Free evolution
         lap_qm = np.zeros_like(psi_qm)
         lap_qm[1:-1] = (psi_qm[2:] - 2*psi_qm[1:-1] + psi_qm[:-2]) / dx_local**2
         psi_qm += dt * (1j * omega * lap_qm)
         
-        # Normalisation
+        # Normalization
         norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
         if norm > 0: psi_qm /= norm
         
-        # Largeur actuelle
+        # Current width
         rho_qm_temp = np.abs(psi_qm)**2
         rho_qm_temp /= np.trapz(rho_qm_temp, x_space)
         mean_x_qm = np.trapz(x_space * rho_qm_temp, x_space)
@@ -400,10 +401,10 @@ def compare_schrodinger(x_space, sigma_x_model):
         
         if abs(sigma_x_qm - sigma_x_model) < 0.005:
             print(f"\n{'='*70}")
-            print(f"COMPARAISON SCHRÖDINGER")
+            print(f"SCHRÖDINGER COMPARISON")
             print(f"{'='*70}")
-            print(f"Convergence en {steps} étapes QM")
-            print(f"Ratio temporel : τ_hydro/τ_QM = {N_steps/steps:.2f}")
+            print(f"Convergence in {steps} QM steps")
+            print(f"Temporal ratio: τ_hydro/τ_QM = {N_steps/steps:.2f}")
             break
         
         steps += 1
@@ -414,25 +415,25 @@ def compare_schrodinger(x_space, sigma_x_model):
     return rho_qm
 
 # ===============================
-# VISUALISATION
+# VISUALIZATION
 # ===============================
 
 def plot_results(x_space, rho, born, rho_qm):
     """
-    Graphique comparatif des densités.
+    Comparative density plots.
     """
     corr = np.corrcoef(rho, born)[0,1]
     error_L1 = 0.5 * np.trapz(np.abs(rho - born), x_space)
     
     print(f"\n{'='*70}")
-    print(f"CONVERGENCE VERS |ψ|²")
+    print(f"CONVERGENCE TOWARD |ψ|²")
     print(f"{'='*70}")
-    print(f"Corrélation ρ vs |ψ|² : {corr:.4f}")
-    print(f"Erreur L¹ : {error_L1:.5f}")
+    print(f"Correlation ρ vs |ψ|²: {corr:.4f}")
+    print(f"L¹ error: {error_L1:.5f}")
     
     fig, axes = plt.subplots(2, 1, figsize=(12, 10))
     
-    # 1. Comparaison densités
+    # 1. Density comparison
     ax1 = axes[0]
     ax1.plot(x_space, rho, 'b-', lw=2, label='ρ(x) particules')
     ax1.plot(x_space, born, 'r--', lw=2, label='⟨|ψ|²⟩ attracteur')
@@ -444,7 +445,7 @@ def plot_results(x_space, rho, born, rho_qm):
     ax1.set_title(f'Convergence Born (corr={corr:.4f}, L¹={error_L1:.5f})', 
                  fontsize=14, fontweight='bold')
     
-    # 2. Résidus
+    # 2. Residuals
     ax2 = axes[1]
     residuals = rho - born
     ax2.plot(x_space, residuals, 'k-', lw=1.5, label='Résidus')
@@ -458,7 +459,7 @@ def plot_results(x_space, rho, born, rho_qm):
     
     plt.tight_layout()
     
-    # Sauvegarde
+    # Save figure
     base_name = f"Born_Rule_N{N_runs}"
     i = 1
     while os.path.exists(f"{base_name}_V{i}.png"):
@@ -466,7 +467,7 @@ def plot_results(x_space, rho, born, rho_qm):
     filename = f"{base_name}_V{i}.png"
 
     plt.savefig(filename, dpi=300, bbox_inches='tight')
-    print(f"\n💾 Graphique sauvegardé : {filename}")
+    print(f"\n💾 Figure saved: {filename}")
     
     plt.show()
 
@@ -475,16 +476,16 @@ def plot_results(x_space, rho, born, rho_qm):
 # ===============================
 
 if __name__ == "__main__":
-    # Simulation principale
+    # Main simulation
     x_space, rho, born, psi_acc = run_born_simulation()
     
     # Analyses
     hbar_eff, sigma_x = compute_hbar_effective(x_space, rho, psi_acc)
     rho_qm = compare_schrodinger(x_space, sigma_x)
     
-    # Visualisation
+    # Visualization
     plot_results(x_space, rho, born, rho_qm)
     
     print("\n" + "="*70)
-    print("✓ SIMULATION TERMINÉE")
+    print("✓ SIMULATION COMPLETED")
     print("="*70)
