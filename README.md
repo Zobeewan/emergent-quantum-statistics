@@ -7,6 +7,7 @@ Date: Jan 2026
 This repository contains the high-performance Python/Numba implementation of a local hidden variable model inspired by walking droplets (Couder/Fort/Bush). The simulation demonstrates that Born's Rule and Pauli Exclusion can emerge from a purely local, deterministic wave-particle dynamics with feedback.
 
 
+----------
 📁 Key Results & Scripts
 
 1. Born Rule Convergence (1D)
@@ -38,7 +39,7 @@ This repository contains the high-performance Python/Numba implementation of a l
     Performance: ~30-120 minutes depending on CPU cores.
 
 
-
+----------
 🛠️ Installation & Usage
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
@@ -46,12 +47,17 @@ This code relies on Numba for JIT compilation and Joblib for parallel execution.
 1. Install dependencies:
     
     pip install numpy matplotlib scipy numba joblib tqdm
+   
+   or
+   
+    pip install -r requirements.txt
 
-2. Run 1st simulation:
+3. Run 1st simulation:
 
     python src/simulation_1d_born.py
 
 
+----------
 ⚙️ Model Parameters
 
 Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined at the top of each script. The default values are tuned for the "quantum regime" convergence.    
