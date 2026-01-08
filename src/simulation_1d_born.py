@@ -38,10 +38,11 @@ Date   : Janvier 2026
 License: MIT
 """
 
+# ===============================
+# PARAMETERS
+# ===============================
 class SimConfig:
-    # ===============================
-    # PARAMETERS
-    # ===============================
+    
     # --- Space & Time ---
     Nx = 300                                    # Grid size (x)
     x_min, x_max = -50, 50                      # Spatial extent (x)
@@ -74,6 +75,13 @@ class SimConfig:
     
     # Sécurité
     epsilon = 1e-3                              # Regularization factor for guidance
+    
+    def __init__(self):
+        # Derived parameters
+        self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
+        self.dx = self.x[1] - self.x[0]                              # Space step
+        # Adjust source width relative to grid
+        self.sigma_emit_scaled = self.dx * 3.0
     
 # Global instance for easy access (can be overridden)
 CFG = SimConfig()
