@@ -1,3 +1,5 @@
+import numpy as np
+
 class Base_Config:                 # (Opti for Born 1D)
     # --- Space & Time ---
     Nx: int = 300                 # Grid size (x)
