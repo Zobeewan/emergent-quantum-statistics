@@ -45,9 +45,6 @@ try:
     from src.config import Base_Config
 except ImportError:
     from config import Base_Config
-
-            
-# Load Configuration
 CFG = Base_Config()
 
 """
