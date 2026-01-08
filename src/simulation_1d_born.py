@@ -43,24 +43,24 @@ class SimConfig:
     # PARAMETERS
     # ===============================
     # --- Space & Time ---
-    Nx = 300                                    # Number of grid points
-    x_min, x_max = -50, 50                      # Spatial extent
-    x = np.linspace(x_min, x_max, Nx)           # Grid initialization
+    Nx = 300                                    # Grid size (x)
+    x_min, x_max = -50, 50                      # Spatial extent (x)
+    x = np.linspace(x_min, x_max, Nx)           # Grid initialization 
     dx = x[1] - x[0]                            # Spatial step   
     dt = 0.01                                   # Time step
     
     # --- Simulation Parameters ---
-    N_steps = 40000                             # Duration of a single trajectory
-    thermalization = 10000                      # Time before statistical collection starts
+    N_steps = 40000                             # Steps per particle
+    thermalization = 10000                      # Steps to ignore (warmup)
     N_runs = 1200                               # Number of independent simulated particles
     N_CORES = -1                                # 0 = auto-detect and use all ; -1 = keep one core free (or more)
     
     # Subsampling 
-    SUBSAMPLE = 1                               # 1 = keep all points, 10 = keep 1 point out of 10
+    SUBSAMPLE = 1                               # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
     
     # --- Field Physics (Pilot Wave) ---
     # Equation: ∂t ψ = (Dψ + iω)∇²ψ − γψ + source   
-    c = 1                                       # Propagation speed (c = 1 by choice of units)                                    
+    c = 1                                       # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)                                    
     gamma = 0.02                                # Dissipation (system memory)
     D_psi = 0.9                                 # Spatial diffusion of the field
     emit_amp = 0.57                             # Source emission amplitude
@@ -69,8 +69,8 @@ class SimConfig:
     
     # --- Particle Physics ---
     # Equation: dx = (α ⋅ ∇φ) dt + noise
-    alpha = 4.0                                 # Inertial coupling coefficient (analogous to k/m, equal to 2ω mean k=1)
-    D_x = 0.28                                  # Stochastic diffusion (noise)
+    alpha = 4.0                                 # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
+    D_x = 0.28                                  # Stochastic diffusion (Brownian noise)
     
     # Sécurité
     epsilon = 1e-3                              # Regularization factor for guidance
