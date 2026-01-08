@@ -1,4 +1,4 @@
-class SimConfig:
+class Base_Config:                 # (Opti for Born 1D)
     # --- Space & Time ---
     Nx: int = 300                 # Grid size (x)
     Ny: int = 300                 # Grid size (y), Only use on 2D simulation
@@ -14,7 +14,7 @@ class SimConfig:
     # --- Simulation Control ---
     N_steps: int = 40000          # Steps per particle
     thermalization: int = 10000   # Steps to ignore (warmup)
-    N_runs: int = 1200            # Number of independent simulated particles
+    N_runs: int = 6000            # Number of independent simulated particles
     N_CORES: int = -1             # 0 = use all available cores, -1 = keep 1 cores free (or more)
     SUBSAMPLE: int = 1            # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
     
@@ -32,6 +32,21 @@ class SimConfig:
     alpha: float = 4.0            # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
     D_x: float = 0.28             # Stochastic diffusion (Brownian noise)
     epsilon: float = 1e-3         # Regularization factor for guidance
+
+
+class Pauli_Config(Base_Config):    # (Opti for pauli 1D)
+    # --- Space & Time ---
+    x_min: float = -50.0          # Spatial extent (x) (left) 
+    x_max: float = 50.0           # Spatial extent (x) (right)
     
-# Global instance for easy access (can be overridden)
-CFG = SimConfig()
+    # --- Simulation Control ---
+    N_runs: int = 1200            # Number of independent simulated particles
+
+
+class Born_2D_Config(Base_Config):    # (Opti for pauli 1D)
+    # --- Space & Time ---
+    x_min: float = -50.0          # Spatial extent (x) (left) 
+    x_max: float = 50.0           # Spatial extent (x) (right)
+    
+    # --- Simulation Control ---
+    N_runs: int = 1200            # Number of independent simulated particles
