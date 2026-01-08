@@ -7,6 +7,8 @@ from tqdm import tqdm
 import multiprocessing as mp
 import os
 
+from src.config import SimConfig
+
 """
 Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ======================================================
