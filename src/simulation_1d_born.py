@@ -246,9 +246,9 @@ def run_born_simulation():
     n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
     
     # Memory estimation
-    n_samples_per_particle = (N_steps - thermalization) // SUBSAMPLE
-    memory_per_particle_mb = (n_samples_per_particle * 8 + Nx * 16) / (1024**2)
-    total_memory_mb = memory_per_particle_mb * N_runs / n_cores
+    n_samples_per_particle = (CFG.N_steps - CFG.thermalization) // CFG.SUBSAMPLE
+    memory_per_particle_mb = (n_samples_per_particle * 8 + CFG.Nx * 16) / (1024**2)
+    total_memory_mb = memory_per_particle_mb * CFG.N_runs / n_cores
     
     print("="*70)
     print("SIMULATION: BORN RULE EMERGENCE")
