@@ -2,7 +2,7 @@ class Base_Config:                 # (Opti for Born 1D)
     # --- Space & Time ---
     Nx: int = 300                 # Grid size (x)
     Ny: int = 300                 # Grid size (y), Only use on 2D simulation
-    
+        
     x_min: float = -50.0          # Spatial extent (x) (left) 
     x_max: float = 50.0           # Spatial extent (x) (right)
     
@@ -32,8 +32,14 @@ class Base_Config:                 # (Opti for Born 1D)
     alpha: float = 4.0            # Coupling strength (Inertial factor, analog k/m, equal to k*2ω)
     D_x: float = 0.28             # Stochastic diffusion (Brownian noise)
     epsilon: float = 1e-3         # Regularization factor for guidance
-
-
+    
+    def __init__(self):
+        # Derived parameters
+        self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
+        self.dx = self.x[1] - self.x[0]                              # Space step
+        # Adjust source width relative to grid
+        self.sigma_emit_scaled = self.dx * 3.0
+        
 class Pauli_Config(Base_Config):    # (Opti for pauli 1D)
     # --- Space & Time ---
     x_min: float = -50.0          # Spatial extent (x) (left) 
