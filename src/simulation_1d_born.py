@@ -7,8 +7,6 @@ from tqdm import tqdm
 import multiprocessing as mp
 import os
 
-from src.config import SimConfig
-
 """
 Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ======================================================
@@ -43,6 +41,9 @@ License: MIT
 # ===============================
 # PARAMETERS
 # ===============================
+from src.config import SimConfig
+CFG = SimConfig()
+
 class SimConfig:
     # --- Space & Time ---
     Nx: int = 300                                     # Grid size (x)
@@ -82,9 +83,6 @@ class SimConfig:
         self.dx = self.x[1] - self.x[0]                              # Space step
         # Adjust source width relative to grid
         self.sigma_emit_scaled = self.dx * 3.0
-    
-# Global instance for easy access (can be overridden)
-CFG = SimConfig()
 
 # ===============================
 # OPTIMIZED NUMBA ENGINE
