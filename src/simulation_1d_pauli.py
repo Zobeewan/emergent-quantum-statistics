@@ -617,6 +617,10 @@ def compare_schrodinger(x_space, sigma_target):
     dx_local = x_space[1] - x_space[0]
     psi_qm = np.exp(-0.5*(x_space/2.0)**2).astype(np.complex128)
     psi_qm /= np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
+
+    best_error = np.inf
+    best_step = 0
+    best_psi = None
     
     steps = 0
     max_steps = 50000
@@ -639,14 +643,22 @@ def compare_schrodinger(x_space, sigma_target):
         rho_qm_temp /= np.trapz(rho_qm_temp, x_space)
         mean_x = np.trapz(x_space * rho_qm_temp, x_space)
         sigma_x = np.sqrt(np.trapz((x_space - mean_x)**2 * rho_qm_temp, x_space))
+
+        diff_sigma = abs(sigma_x - sigma_target)
         
-        if abs(sigma_x - sigma_target) < 0.01:
-            print(f"   Convergence Schrödinger en {steps} steps")
+        if diff_sigma < best_error:
+            best_error = diff_sigma
+            best_step = steps
+            best_psi = psi_qm
+        else:    
+            print(f"\nCOMPARAISON SCHRÖDINGER\n")
+            print(f"Convergence en {best_step} étapes QM")
+            print(f"Ratio temporel : τ_hydro/τ_QM = {N_steps/best_step:.2f}")
             break
         
         steps += 1
     
-    rho_qm = np.abs(psi_qm)**2
+    rho_qm = np.abs(best_psi)**2
     rho_qm /= np.trapz(rho_qm, x_space)
  
     return rho_qm
