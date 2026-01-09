@@ -285,7 +285,7 @@ def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins
 def worker_particle(seed, particle_id, x_space, coupling_code, side):
     np.random.seed(seed)
     
-    if side == "rand":
+    if CFG.side == "rand":
         # Tirage aléatoire : 50% normal, 50% inversé
         if np.random.rand() < 0.5:
             area_p1 = (-15.0, -5.0)  # P1 gauche
@@ -295,50 +295,50 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side):
             area_p2 = (-15.0, -5.0)  # P2 gauche
     else:
         # Utilise les zones globales
-        area_p1 = start_area_p1
-        area_p2 = start_area_p2
+        area_p1 = CFG.start_area_p1
+        area_p2 = CFG.start_area_p2
     
     x1_init = np.random.uniform(area_p1[0], area_p1[1])
     x2_init = np.random.uniform(area_p2[0], area_p2[1])
     
     # 1. INTERACTION (avec accumulation des champs)
     t1, t2, psi1_acc, psi2_acc, psi_sum_acc, born1_acc, born2_acc, born_sum_acc = simulate_interaction(
-        x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
-        emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, coupling_code, thermalization
+        x1_init, x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
+        CFG.x_min, CFG.x_max, CFG.Nx, coupling_code, CFG.thermalization
     )
     
     # 2. SOLO P1 (avec accumulation)
     ts1, phi1_acc, born1_accumulated = simulate_solo(
-        x1_init, N_steps, dt, dx, D_psi, omega, gamma,
-        emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, thermalization
+        x1_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
+        CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
     
     # 3. SOLO P2 (avec accumulation)
     ts2, phi2_acc, born2_accumulated = simulate_solo(
-        x2_init, N_steps, dt, dx, D_psi, omega, gamma,
-        emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, thermalization
+        x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
+        CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
     
     # Analyse post-thermalisation
-    t1_post = t1[thermalization:]
-    t2_post = t2[thermalization:]
-    ts1_post = ts1[thermalization:]
-    ts2_post = ts2[thermalization:]
+    t1_post = t1[CFG.thermalization:]
+    t2_post = t2[CFG.thermalization:]
+    ts1_post = ts1[CFG.thermalization:]
+    ts2_post = ts2[CFG.thermalization:]
     
     # Histogrammes des positions
-    hist_p1_real, _ = np.histogram(t1_post, bins=len(x_space), range=(x_min, x_max))
-    hist_p2_real, _ = np.histogram(t2_post, bins=len(x_space), range=(x_min, x_max))
+    hist_p1_real, _ = np.histogram(t1_post, bins=len(x_space), range=(CFG.x_min, CFG.x_max))
+    hist_p2_real, _ = np.histogram(t2_post, bins=len(x_space), range=(CFG.x_min, CFG.x_max))
     
     # Distances
     d_real = np.abs(t1_post - t2_post)
     d_ghost = np.abs(ts1_post - ts2_post)
     
     # Pour heatmap
-    positions_p1 = t1_post[::10]  # Sous-échantillonnage pour heatmap
-    positions_p2 = t2_post[::10]
+    positions_p1 = t1_post[::1]  # Sous-échantillonnage pour heatmap
+    positions_p2 = t2_post[::1]
     
     return {
         'hist_p1': hist_p1_real.astype(np.float32),
@@ -364,22 +364,22 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side):
 # ===============================
 
 def run_pauli_simulation():
-    n_cores = N_CORES if N_CORES > 0 else max(1, mp.cpu_count() + N_CORES)
+    n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
     
     print("="*70)
     print("PAULI EXCLUSION - VERSION QUANTITATIVE v4")
     print("="*70)
     print(f"Configuration :")
     print(f"  - Cœurs CPU : {n_cores}/{mp.cpu_count()}")
-    print(f"  - Particules : {N_runs} paires")
-    print(f"  - Steps/paire : {N_steps}")
+    print(f"  - Particules : {CFG.N_runs} paires")
+    print(f"  - Steps/paire : {CFG.N_steps}")
     print(f"\nParamètres physiques :")
-    print(f"  γ={gamma}, D_ψ={D_psi}, ω={omega}, α={alpha}, D_x={D_x}")
-    print(f"  Couplage : {coupling_type}")
+    print(f"  γ={CFG.gamma}, D_ψ={CFG.D_psi}, ω={CFG.omega}, α={CFG.alpha}, D_x={CFG.D_x}")
+    print(f"  Couplage : {CFG.coupling_type}")
     print("="*70)
     
-    x_space = np.linspace(x_min, x_max, Nx)
-    coupling_code = 1 if coupling_type == "sum" else 0
+    x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
+    coupling_code = 1 if CFG.coupling_type == "sum" else 0
     
     start_time = time.time()
     
@@ -394,8 +394,8 @@ def run_pauli_simulation():
             particle_id = p,
             x_space = x_space,
             coupling_code = coupling_code,
-            side = SIDE
-        ) for p in tqdm(range(N_runs), desc="Paires")
+            side = CFG.SIDE
+        ) for p in tqdm(range(CFG.N_runs), desc="Paires")
     )
     
     elapsed = time.time() - start_time
@@ -406,19 +406,19 @@ def run_pauli_simulation():
     # ========================================
     print("\n📊 Agrégation des statistiques...")
     
-    hist_p1_total = np.zeros(Nx)
-    hist_p2_total = np.zeros(Nx)
-    psi1_mean = np.zeros(Nx, dtype=np.complex128)
-    psi2_mean = np.zeros(Nx, dtype=np.complex128)
-    psi_sum_mean = np.zeros(Nx, dtype=np.complex128)
-    phi1_mean = np.zeros(Nx, dtype=np.complex128)
-    phi2_mean = np.zeros(Nx, dtype=np.complex128)
-    born1_mean = np.zeros(Nx, dtype=np.float64)
-    born2_mean = np.zeros(Nx, dtype=np.float64)
-    born_sum_mean = np.zeros(Nx, dtype=np.float64)
-    integral_born = np.zeros(Nx, dtype=np.float64)
-    born1_accumulated_mean = np.zeros(Nx, dtype=np.float64)
-    born2_accumulated_mean = np.zeros(Nx, dtype=np.float64)
+    hist_p1_total = np.zeros(CFG.Nx)
+    hist_p2_total = np.zeros(CFG.Nx)
+    psi1_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    psi2_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    psi_sum_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    phi1_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    phi2_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    born1_mean = np.zeros(CFG.Nx, dtype=np.float64)
+    born2_mean = np.zeros(CFG.Nx, dtype=np.float64)
+    born_sum_mean = np.zeros(CFG.Nx, dtype=np.float64)
+    integral_born = np.zeros(CFG.Nx, dtype=np.float64)
+    born1_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
+    born2_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
     dist_real_all = []
     dist_ghost_all = []
     positions_p1_all = []
@@ -443,20 +443,20 @@ def run_pauli_simulation():
         positions_p2_all.extend(res['positions_p2'])
     
     # Normalisation
-    psi1_mean /= N_runs
-    psi2_mean /= N_runs
-    psi_sum_mean /= N_runs
-    phi1_mean /= N_runs
-    phi2_mean /= N_runs
-    born1_mean /= N_runs
-    born2_mean /= N_runs
-    born_sum_mean /= N_runs
-    born1_accumulated_mean /= N_runs
-    born2_accumulated_mean /= N_runs
+    psi1_mean /= CFG.N_runs
+    psi2_mean /= CFG.N_runs
+    psi_sum_mean /= CFG.N_runs
+    phi1_mean /= CFG.N_runs
+    phi2_mean /= CFG.N_runs
+    born1_mean /= CFG.N_runs
+    born2_mean /= CFG.N_runs
+    born_sum_mean /= CFG.N_runs
+    born1_accumulated_mean /= CFG.N_runs
+    born2_accumulated_mean /= CFG.N_runs
     
     # Densités observées
-    rho_p1_obs = hist_p1_total / (np.sum(hist_p1_total) * dx)
-    rho_p2_obs = hist_p2_total / (np.sum(hist_p2_total) * dx)
+    rho_p1_obs = hist_p1_total / (np.sum(hist_p1_total) * CFG.dx)
+    rho_p2_obs = hist_p2_total / (np.sum(hist_p2_total) * CFG.dx)
     rho_total_obs = rho_p1_obs + rho_p2_obs
     
     # |ψ|² observés
@@ -574,7 +574,7 @@ def compare_schrodinger(x_space, sigma_target):
         lap_qm[1:-1] = (psi_qm[2:] - 2*psi_qm[1:-1] + psi_qm[:-2]) / dx_local**2
         
         # Évolution
-        psi_qm += dt * (1j * omega * lap_qm)
+        psi_qm += CFG.dt * (1j * CFG.omega * lap_qm)
         
         # Normalisation
         norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
@@ -651,7 +651,7 @@ def analyze_results(data, theory):
     # 4. FONCTION g(r)
     # ========================================
     r_vals, g_r, hist_real, hist_ghost = compute_pair_correlation(
-        data['dist_real'], data['dist_ghost'], x_min, x_max, bins=80
+        data['dist_real'], data['dist_ghost'], CFG.x_min, CFG.x_max, bins=80
     )
     g_0 = g_r[np.argmin(np.abs(r_vals - 1.0))]
     
@@ -674,11 +674,6 @@ def analyze_results(data, theory):
     rho_qm_p2 = compare_schrodinger(x_space, sigma_x_p2)
     
     # Totale
-    """.
-    mean_x_total = np.trapz(x_space * data['born_sum'], x_space)
-    sigma_x_total = np.sqrt(np.trapz((x_space - mean_x_total)**2 * data['born_sum'], x_space))
-    rho_qm_total = compare_schrodinger(x_space, sigma_x_total, N_part=2)                                       
-    """
     rho_qm_total = rho_qm_p1 + rho_qm_p2
 
     # Vérification symétrie
@@ -725,7 +720,7 @@ def analyze_results(data, theory):
     if born_ok and g_0 < 0.5 and exclusion_factor > 2.0:
         print("🎉 COMPORTEMENT FERMIONIQUE CONFIRMÉ")
         print(f"   ✓ Convergence Born : ρ ≈ |ψ|² (corr>{0.95:.2f})")
-        print(f"   ✓ Meilleur avec théorie fermions")
+        print(f"   ✓ Facteur d'exclusion (réel/fantomes) fortement augmenter")
         print(f"   ✓ Trou de Fermi : g(1)={g_0:.3f} < 0.5")
     elif born_ok:
         print("✓ CONVERGENCE BORN VALIDÉE")
@@ -849,7 +844,7 @@ def plot_results_page1(data, theory, metrics):
     plt.suptitle('Page 1 : Convergence Born et Comparaison Théories', 
                 fontsize=14, fontweight='bold', y=0.995)
     
-    base_name = "Pauli_v4_Page1"
+    base_name = f"Pauli_Exclusion_N{CFG.N_runs}_Page1"
     i = 1
     while os.path.exists(f"{base_name}_{i}.png"):
         i += 1
@@ -894,7 +889,6 @@ def plot_results_page2(data, theory, metrics):
     # 2. DISTRIBUTION DES DISTANCES (CORRIGÉE)
     # ========================================
     ax2 = fig.add_subplot(gs[0, 1])
-    # Plot direct des histogrammes (pas refaire un hist d'un hist !)
     ax2.plot(r_vals, metrics['hist_ghost'], 'gray', lw=2, alpha=0.6, label='Fantômes')
     ax2.fill_between(r_vals, metrics['hist_ghost'], alpha=0.3, color='gray')
     ax2.plot(r_vals, metrics['hist_real'], 'r-', lw=2.5, label='Réel')
@@ -912,13 +906,13 @@ def plot_results_page2(data, theory, metrics):
     # ========================================
     ax3 = fig.add_subplot(gs[1, 0])
     H, xedges, yedges = np.histogram2d(data['positions_p1'], data['positions_p2'], 
-                                        bins=60, range=[[x_min, x_max], [x_min, x_max]])
+                                        bins=60, range=[[CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max]])
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
     im = ax3.imshow(H.T, origin='lower', extent=extent, cmap='hot', aspect='auto', 
                     interpolation='bilinear')
     
     # Diagonale (positions identiques - interdit pour fermions)
-    ax3.plot([x_min, x_max], [x_min, x_max], 'cyan', linewidth=2.5, 
+    ax3.plot([CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max], 'cyan', linewidth=2.5, 
              linestyle='--', label='x₁=x₂ (interdit)')
     
     ax3.set_xlabel('Position P1', fontsize=11)
@@ -932,12 +926,12 @@ def plot_results_page2(data, theory, metrics):
     # ========================================
     ax4 = fig.add_subplot(gs[1, 1])
     rho_2d = theory['rho_2d_fermion']
-    extent_theory = [x_min, x_max, x_min, x_max]
+    extent_theory = [CFG.x_min, CFG.x_max, CFG.x_min, CFG.x_max]
     im2 = ax4.imshow(rho_2d.T, origin='lower', extent=extent_theory, cmap='hot', 
                      aspect='auto', interpolation='bilinear')
     
     # Diagonale théorique
-    ax4.plot([x_min, x_max], [x_min, x_max], 'cyan', linewidth=2.5, 
+    ax4.plot([CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max], 'cyan', linewidth=2.5, 
              linestyle='--', label='x₁=x₂')
     
     ax4.set_xlabel('Position P1', fontsize=11)
@@ -949,7 +943,7 @@ def plot_results_page2(data, theory, metrics):
     plt.suptitle('Page 2 : Corrélations spatiales et Exclusion de Pauli', 
                 fontsize=14, fontweight='bold', y=0.995)
     
-    base_name = "Pauli_v4_Page2"
+    base_name = f"Pauli_Exclusion_N{CFG.N_runs}_Page2"
     i = 1
     while os.path.exists(f"{base_name}_{i}.png"):
         i += 1
