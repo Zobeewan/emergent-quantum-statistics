@@ -5,11 +5,11 @@ class Base_Config:                 # (Opti for Born 1D)
     Nx: int = 300                 # Grid size (x)
     Ny: int = 300                 # Grid size (y), Only use on 2D simulation
         
-    x_min: float = -50.0          # Spatial extent (x) (left) 
-    x_max: float = 50.0           # Spatial extent (x) (right)
+    x_min: float = -120.0          # Spatial extent (x) (left) 
+    x_max: float = 120.0           # Spatial extent (x) (right)
     
-    y_min: float = -50.0          # Spatial extent (y) (left), Only use on 2D simulation
-    y_max: float = 50.0           # Spatial extent (y) (right), Only use on 2D simulation
+    y_min: float = -120.0          # Spatial extent (y) (left), Only use on 2D simulation
+    y_max: float = 120.0           # Spatial extent (y) (right), Only use on 2D simulation
     
     dt: float = 0.01              # Time step
     
@@ -23,7 +23,7 @@ class Base_Config:                 # (Opti for Born 1D)
     # --- Wave Physics (Pilot Field) ---
     # Equation: ∂t ψ = (Dψ + iω)∇²ψ - γψ + Source
     c: float = 1.0                # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)    
-    gamma: float = 0.02           # Dissipation (system memory)
+    gamma: float = 0.045           # Dissipation (system memory)
     D_psi: float = 0.9            # Spatial diffusion
     emit_amp: float = 0.57        # Source emission amplitude
     sigma_emit: float = 1.0       # Spatial width of the source (will be scaled by dx)
