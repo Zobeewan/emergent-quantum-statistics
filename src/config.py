@@ -55,14 +55,14 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     # --- Initial configuration of particle positions --- 
     SIDE = "norm"                     # "norm" = normal, "rand" = random, or inverted
     if SIDE == "norm":
-        start_area_p1 = (-15.0, -5.0)   # Particle 1 starts on the left
-        start_area_p2 = (5.0, 15.0)     # Particle 2 starts on the right
+        start_area_p1: float = (-15.0, -5.0)   # Particle 1 starts on the left
+        start_area_p2: float = (5.0, 15.0)     # Particle 2 starts on the right
     elif SIDE == "rand":
-        start_area_p1 = None            # Random starts
-        start_area_p2 = None            # Random starts
+        start_area_p1: float = None            # Random starts
+        start_area_p2: float = None            # Random starts
     else:  # "inverted"
-        start_area_p1 = (5.0, 15.0)     # Particle 1 starts on the right
-        start_area_p2 = (-15.0, -5.0)   # Particle 2 starts on the left 
+        start_area_p1: float = (5.0, 15.0)     # Particle 1 starts on the right
+        start_area_p2: float = (-15.0, -5.0)   # Particle 2 starts on the left 
 
     # --- Coupling ---
     # "sum" →  |ψ|+|ψ| but fermionic behavior via effective repulsion
