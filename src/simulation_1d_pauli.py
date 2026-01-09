@@ -792,16 +792,26 @@ def analyze_results(data, theory):
         print("⚠️  Signature fermionique partielle")
     else:
         print("❌ Convergence Born insuffisante")
-    
+
     return {
         'corr_p1_born': corr_p1_born,
         'error_L1_p1_born': error_L1_p1_born,
         'corr_p1_fermion': corr_p1_fermion,
         'error_L1_p1_fermion': error_L1_p1_fermion,
+        'corr_p1_boson': corr_p1_boson,
+        'error_L1_p1_boson': error_L1_p1_boson,        
+        'corr_p2_born': corr_p2_born,
+        'error_L1_p2_born': error_L1_p2_born,
+        'corr_p2_fermion': corr_p2_fermion,
+        'error_L1_p2_fermion': error_L1_p2_fermion,   
+        'corr_p2_boson': corr_p2_boson,
+        'error_L1_p2_boson': error_L1_p2_boson,                
         'corr_total_born': corr_total_born,
         'error_L1_total_born': error_L1_total_born,
         'corr_total_fermion': corr_total_fermion,
         'error_L1_total_fermion': error_L1_total_fermion,
+        'corr_total_boson': corr_total_boson,
+        'error_L1_total_boson': error_L1_total_boson,        
         'g_r': (r_vals, g_r),
         'g_0': g_0,
         'exclusion_factor': exclusion_factor,
@@ -811,7 +821,7 @@ def analyze_results(data, theory):
         'rho_qm_p2': rho_qm_p2,      
         'rho_qm_total': rho_qm_total        
     }
-
+    
 # ===============================
 # VISUALISATION (PAGE 1)
 # ===============================
@@ -856,7 +866,7 @@ def plot_results_page1(data, theory, metrics):
     ax2.grid(alpha=0.3)
     ax2.set_xlabel('Position x')
     ax2.set_ylabel('Densité')
-    ax2.set_title('Particule 2', fontweight='bold', fontsize=11)
+    ax2.set_title(f'Particule 2 (corr_Born={metrics["corr_p2_born"]:.4f}, L¹={metrics["error_L1_p2_born"]:.5f})', fontweight='bold', fontsize=11)
     
     # ========================================
     # 3. RÉSIDUS P1
