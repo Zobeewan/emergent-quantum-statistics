@@ -53,11 +53,11 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
 
     
     # --- Initial configuration of particle positions --- 
-    CONFIG = "norm"                     # "norm" = normal, "rand" = random, or inverted
-    if CONFIG == "norm":
+    SIDE = "norm"                     # "norm" = normal, "rand" = random, or inverted
+    if SIDE == "norm":
         start_area_p1 = (-15.0, -5.0)   # Particle 1 starts on the left
         start_area_p2 = (5.0, 15.0)     # Particle 2 starts on the right
-    elif CONFIG == "rand":
+    elif SIDE == "rand":
         start_area_p1 = None            # Random starts
         start_area_p2 = None            # Random starts
     else:  # "inverted"
