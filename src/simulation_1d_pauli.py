@@ -21,27 +21,37 @@ and now focuses on two-particle correlations.
 
 Physical Principle:
 -------------------
-• Each particle generates its own complex guiding field ψ(x,t).
-• The particles follow a stochastic drift driven by the phase gradient.
-  of a combined guiding field, the sum of the 2 fields generated.
-• Symmetric or antisymmetric coupling is enforced dynamically.
-• No explicit antisymmetrization of particle trajectories.
+Each particle generates its own complex guiding field ψ₁(x,t), ψ₂(x,t),
+while their dynamics is governed by a combined effective field.
 
+• No antisymmetrization of trajectories is imposed
+• No exclusion rule is hard-coded
+• No fermionic statistics are assumed
+
+Instead, Pauli exclusion emerges dynamically as a statistical property
+of the coupled field–particle system, through destructive interference
+in configuration space.
+
+Symmetric or antisymmetric coupling is enforced by local dynamics.
 
 Key Result:
 -----------
 • Pair correlation functions g(r → 0) < 1
+• Shape of the correlation hole (Fermi hole)
 • The joined positions heatmap show a forbidden diagonal for x1 = x2
-• The distinct prediction in the joined positions come from the fermion indistinguishability nature 
+• The distinct prediction in the joined positions come from the fermion indistinguishability nature (Symmetry properties)
 • Single particles statistical distribution ρ(x) still dynamically conforms to the shape of the spread wave packet |ψ|².
 • Both particles statistical distribution ρ(x) dynamically conforms to the shape of a symmetric coupling of fields (boson's coupling).
-• Pauli exclusion seem to emerges from local field dynamics acting as a repulsive force 
+
+Pauli exclusion seem to emerges from local field dynamics acting as a repulsive force, 
+validating the pilot-wave mechanism as a viable dynamical origin for Fermi-Dirac statistics. 
 
 
 Author : Revoire Christian (Independent Researcher)
 Date   : Janvier 2026
 License: MIT
 """
+
 
 # ===============================
 # CONFIGURATION IMPORT
@@ -118,6 +128,17 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
 @njit(fastmath=True)
 def evolve_field(psi, x_particle, dt, dx, D_psi, omega, gamma, 
                 emit_amp, sigma_emit, x_min, Nx):
+    """
+    Evolves the complex guiding field ψ(x,t) for one time step.
+
+    Contributions:
+    - Diffusion (Laplacian)
+    - Oscillation (imaginary term)
+    - Damping
+    - Particle emission (localized Gaussian source)
+    - Optional static external source
+    """
+    
     lap = np.zeros_like(psi)
     for i in range(1, Nx-1):
         lap[i] = (psi[i+1] - 2*psi[i] + psi[i-1]) / dx**2
@@ -263,6 +284,19 @@ def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
 # ===============================
 # FONCTION g(r)
 # ===============================
+"""
+Pair correlation function g(r).
+
+Defined as:
+    g(r) = ⟨ ρ(x₁, x₂) ⟩ / (ρ₁(x₁) ρ₂(x₂))
+
+with r = |x₁ − x₂|.
+
+For fermions:
+-------------
+• g(0) → 0   (Pauli exclusion)
+• g(r) shows a correlation hole at short distances
+"""
 
 def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins=100):
     L = x_max - x_min
@@ -283,6 +317,15 @@ def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins
 # ===============================
 
 def worker_particle(seed, particle_id, x_space, coupling_code, side):
+    """
+    Executes one independent stochastic realization of the
+    two-particle pilot-wave dynamics.
+
+    Each run contributes one sample to the ensemble statistics.
+    The Pauli exclusion principle is hardly visible at the level of
+    a single random trajectory, but statistically emerges after ensemble averaging.
+    """
+  
     np.random.seed(seed)
     
     if CFG.side == "rand":
@@ -496,9 +539,17 @@ def run_pauli_simulation():
 
 def compute_theoretical_densities(x_space, phi1, phi2):
     """
-    Calcule les densités marginales théoriques pour fermions et bosons.
-    SANS sous-échantillonnage (grille complète).
+    One-particle marginal densities.
+    
+    ρ₁(x) and ρ₂(x) are obtained by integrating the joint distribution
+    over the other particle.
+    
+    For identical particles in a symmetric setup, these marginals
+    are expected to be identical.
+    
+    The exclusion is in the correlation, not in ρ(x).
     """
+  
     dx_local = x_space[1] - x_space[0]
     Nx = len(x_space)
     
