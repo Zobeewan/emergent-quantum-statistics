@@ -8,41 +8,55 @@ from tqdm import tqdm
 import multiprocessing as mp
 
 """
-Pauli Exclusion - Version Quantitative v4
+Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ==========================================
+Emergence of Pauli Exclusion Principle from Local Dynamics. 
+
+This simulation investigates the emergence of fermionic behavior
+(Pauli exclusion) from a stochastic field–particle dynamics model.
+
+The model extends a previously validated framework showing
+the emergence of the Born rule (ρ ≈ |ψ|²) for single particles,
+and now focuses on two-particle correlations.
+
+Physical Principle:
+-------------------
+• Each particle generates its own complex guiding field ψ(x,t).
+• The particles follow a stochastic drift driven by the phase gradient.
+  of a combined guiding field, the sum of the 2 fields generated.
+• Symmetric or antisymmetric coupling is enforced dynamically.
+• No explicit antisymmetrization of particle trajectories.
 
 
+Key Result:
+-----------
+• Pair correlation functions g(r → 0) < 1
+• The joined positions heatmap show a forbidden diagonal for x1 = x2
+• The distinct prediction in the joined positions come from the fermion indistinguishability nature 
+• Single particles statistical distribution ρ(x) still dynamically conforms to the shape of the spread wave packet |ψ|².
+• Both particles statistical distribution ρ(x) dynamically conforms to the shape of a symmetric coupling of fields (boson's coupling).
+• Pauli exclusion seem to emerges from local field dynamics acting as a repulsive force 
 
-Auteur : Revoire Christian (amélioré par Claude)
+
+Author : Revoire Christian (Independent Researcher)
 Date   : Janvier 2026
+License: MIT
 """
 
 # ===============================
-# PARAMÈTRES GLOBAUX
+# CONFIGURATION IMPORT
 # ===============================
-Nx = 300
-x_min, x_max = -150, 150
-x = np.linspace(x_min, x_max, Nx)
-dx = x[1] - x[0]
+try:
+    from src.config import Base_Config
+except ImportError:
+    from config import Base_Config
+CFG = Base_Config()
 
-dt = 0.01
-N_steps = 40000
-thermalization = 10000
-N_runs = 6000
-N_CORES = -1     # 0 = auto-detect and use all ; -1 = let 1 free (or more)
+"""
+Parameters are loaded from config.py.
 
-# --- Physique du Champ ---
-c = (dx/dt) * (dt/dx)
-gamma = 0.001
-D_psi = 0.9
-emit_amp = 0.57
-sigma_emit = dx * 3
-omega = 2
-
-# --- Physique des Particules ---
-alpha = 4
-D_x = 0.28
-epsilon = 1e-3
+To change physics or simulation settings, edit 'src/config.py' 
+"""
 
 # --- Zones de départ ---
 CONFIG = "norm"                     # "norm" = normal, "rand" = aléatoire, sinon inversé
