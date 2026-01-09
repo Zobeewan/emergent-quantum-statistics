@@ -47,10 +47,10 @@ License: MIT
 # CONFIGURATION IMPORT
 # ===============================
 try:
-    from src.config import Base_Config
+    from src.config import Pauli_Config
 except ImportError:
-    from config import Base_Config
-CFG = Base_Config()
+    from config import Pauli_Config
+CFG = Pauli_Config()
 
 """
 Parameters are loaded from config.py.
@@ -58,25 +58,14 @@ Parameters are loaded from config.py.
 To change physics or simulation settings, edit 'src/config.py' 
 """
 
-# --- Zones de départ ---
-CONFIG = "norm"                     # "norm" = normal, "rand" = aléatoire, sinon inversé
-if CONFIG == "norm":
-    start_area_p1 = (-15.0, -5.0)   # P1 à gauche
-    start_area_p2 = (5.0, 15.0)     # P2 à droite
-elif CONFIG == "rand":
-    start_area_p1 = None            # Déterminé dynamiquement
-    start_area_p2 = None
-else:  # "inversé"
-    start_area_p1 = (5.0, 15.0)     # P1 à droite
-    start_area_p2 = (-15.0, -5.0)   # P2 à gauche    
+# --- Initial configuration of particle positions --- 
+CFG.SIDE = "norm"      # "norm" = Particle 1 on the left, Particle 2 on the right
+                       # "rand" = Random                   
+                       # anything else starts inverted
 
-# --- Barrière centrale (optionnelle) ---
-barrier_emit_amp = 0.0
-barrier_position = 0.0
-barrier_phase = 0.0
-
-# --- Type de couplage ---
-coupling_type = "sum"  # "sum" pour comportement fermionique
+# --- Coupling ---
+CFG.coupling_type = "sum"    # "sum" →  |ψ|+|ψ| but fermionic behavior via effective repulsion
+                             # "diff" → |ψ|-|ψ| but bosonic behavior via effective attraction
 
 # ===============================
 # NOYAU PHYSIQUE (Numba)
@@ -84,10 +73,18 @@ coupling_type = "sum"  # "sum" pour comportement fermionique
 
 @njit(fastmath=True)
 def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
+    """
+    Computes the local drift velocity from the phase gradient
+    of the guiding field.
+
+    This is the core guidance law of the model.
+    """
+  
     amp2 = np.abs(psi_val)**2
     if amp2 < epsilon**2:
         return 0.0
-
+      
+    # Prevents ill-defined phase when |ψ| ≈ 0
     if not np.isfinite(psi_prev) or not np.isfinite(psi_next) or not np.isfinite(psi_val):
         return 0.0
 
@@ -98,7 +95,8 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
         return 0.0
 
     dph = np.angle(psi_next) - np.angle(psi_prev)
-    
+
+    # Phase unwrapping
     if dph > np.pi: dph -= 2*np.pi
     elif dph < -np.pi: dph += 2*np.pi
     
@@ -119,12 +117,12 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
 
 @njit(fastmath=True)
 def evolve_field(psi, x_particle, dt, dx, D_psi, omega, gamma, 
-                emit_amp, sigma_emit, x_min, Nx, static_source):
+                emit_amp, sigma_emit, x_min, Nx):
     lap = np.zeros_like(psi)
     for i in range(1, Nx-1):
         lap[i] = (psi[i+1] - 2*psi[i] + psi[i-1]) / dx**2
     
-    psi_new = psi + dt * c * ((D_psi + 1j * omega) * lap - gamma * psi) + static_source
+    psi_new = psi + dt * c * ((D_psi + 1j * omega) * lap - gamma * psi)
     
     cutoff = 6.0 * sigma_emit
     cutoff_idx = int(cutoff / dx)
@@ -143,7 +141,7 @@ def evolve_field(psi, x_particle, dt, dx, D_psi, omega, gamma,
 @njit(fastmath=True)
 def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
                         emit_amp, sigma_emit, alpha, D_x, epsilon, 
-                        x_min, x_max, Nx, static_source, coupling, thermalization):
+                        x_min, x_max, Nx, coupling, thermalization):
     psi1 = np.zeros(Nx, dtype=np.complex128)
     psi2 = np.zeros(Nx, dtype=np.complex128)
     
@@ -164,9 +162,9 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
     
     for t in range(N_steps):
         psi1 = evolve_field(psi1, x1, dt, dx, D_psi, omega, gamma,
-                           emit_amp, sigma_emit, x_min, Nx, static_source)
+                           emit_amp, sigma_emit, x_min, Nx)
         psi2 = evolve_field(psi2, x2, dt, dx, D_psi, omega, gamma,
-                           emit_amp, sigma_emit, x_min, Nx, static_source)
+                           emit_amp, sigma_emit, x_min, Nx)
         
         if coupling == 1:
             psi_guide = psi1 + psi2
@@ -222,7 +220,7 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
 @njit(fastmath=True)
 def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
                  emit_amp, sigma_emit, alpha, D_x, epsilon,
-                 x_min, x_max, Nx, static_source, thermalization):
+                 x_min, x_max, Nx, thermalization):
     psi = np.zeros(Nx, dtype=np.complex128)
     x = x_init
     traj = np.zeros(N_steps)
@@ -234,7 +232,7 @@ def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
     
     for t in range(N_steps):
         psi = evolve_field(psi, x, dt, dx, D_psi, omega, gamma,
-                          emit_amp, sigma_emit, x_min, Nx, static_source)
+                          emit_amp, sigma_emit, x_min, Nx)
         
         idx = int(round((x - x_min) / dx))
         d = 0.0
@@ -262,18 +260,6 @@ def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
     
     return traj, psi_accumulated, born_accumulated
 
-@njit(fastmath=True)
-def precompute_static_source(x_arr, dt, dx, sigma_emit, barrier_pos, 
-                             barrier_amp, barrier_ph):
-    source = np.zeros(len(x_arr), dtype=np.complex128)
-    if barrier_amp > 0:
-        for i in range(len(x_arr)):
-            xi = x_arr[i]
-            dist2 = (xi - barrier_pos)**2
-            val = barrier_amp * np.exp(-0.5 * dist2 / (sigma_emit * 1.5)**2)
-            source[i] = val * np.exp(1j * barrier_ph)
-    return source * dt
-
 # ===============================
 # FONCTION g(r)
 # ===============================
@@ -296,10 +282,10 @@ def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins
 # WORKER PARALLÈLE
 # ===============================
 
-def worker_particle(seed, particle_id, x_space, coupling_code, static_source, config):
+def worker_particle(seed, particle_id, x_space, coupling_code, side):
     np.random.seed(seed)
     
-    if config == "rand":
+    if side == "rand":
         # Tirage aléatoire : 50% normal, 50% inversé
         if np.random.rand() < 0.5:
             area_p1 = (-15.0, -5.0)  # P1 gauche
@@ -319,21 +305,21 @@ def worker_particle(seed, particle_id, x_space, coupling_code, static_source, co
     t1, t2, psi1_acc, psi2_acc, psi_sum_acc, born1_acc, born2_acc, born_sum_acc = simulate_interaction(
         x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
         emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, static_source, coupling_code, thermalization
+        x_min, x_max, Nx, coupling_code, thermalization
     )
     
     # 2. SOLO P1 (avec accumulation)
     ts1, phi1_acc, born1_accumulated = simulate_solo(
         x1_init, N_steps, dt, dx, D_psi, omega, gamma,
         emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, static_source, thermalization
+        x_min, x_max, Nx, thermalization
     )
     
     # 3. SOLO P2 (avec accumulation)
     ts2, phi2_acc, born2_accumulated = simulate_solo(
         x2_init, N_steps, dt, dx, D_psi, omega, gamma,
         emit_amp, sigma_emit, alpha, D_x, epsilon,
-        x_min, x_max, Nx, static_source, thermalization
+        x_min, x_max, Nx, thermalization
     )
     
     # Analyse post-thermalisation
@@ -394,8 +380,6 @@ def run_pauli_simulation():
     
     x_space = np.linspace(x_min, x_max, Nx)
     coupling_code = 1 if coupling_type == "sum" else 0
-    static_source = precompute_static_source(x, dt, dx, sigma_emit, 
-                                             barrier_position, barrier_emit_amp, barrier_phase)
     
     start_time = time.time()
     
@@ -410,8 +394,7 @@ def run_pauli_simulation():
             particle_id = p,
             x_space = x_space,
             coupling_code = coupling_code,
-            static_source = static_source,
-            config = CONFIG
+            side = SIDE
         ) for p in tqdm(range(N_runs), desc="Paires")
     )
     
