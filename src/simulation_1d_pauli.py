@@ -126,7 +126,7 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
     return drift
 
 @njit(fastmath=True)
-def evolve_field(psi, x_particle, dt, dx, D_psi, omega, gamma, 
+def evolve_field(psi, x_particle, dt, dx, c, D_psi, omega, gamma, 
                 emit_amp, sigma_emit, x_min, Nx):
     """
     Evolves the complex guiding field ψ(x,t) for one time step.
@@ -160,7 +160,7 @@ def evolve_field(psi, x_particle, dt, dx, D_psi, omega, gamma,
     return psi_new
 
 @njit(fastmath=True)
-def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
+def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gamma,
                         emit_amp, sigma_emit, alpha, D_x, epsilon, 
                         x_min, x_max, Nx, coupling, thermalization):
     psi1 = np.zeros(Nx, dtype=np.complex128)
@@ -182,9 +182,9 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
     n_acc = 0
     
     for t in range(N_steps):
-        psi1 = evolve_field(psi1, x1, dt, dx, D_psi, omega, gamma,
+        psi1 = evolve_field(psi1, x1, dt, dx, c, D_psi, omega, gamma,
                            emit_amp, sigma_emit, x_min, Nx)
-        psi2 = evolve_field(psi2, x2, dt, dx, D_psi, omega, gamma,
+        psi2 = evolve_field(psi2, x2, dt, dx, c, D_psi, omega, gamma,
                            emit_amp, sigma_emit, x_min, Nx)
         
         if coupling == 1:
@@ -239,7 +239,7 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, D_psi, omega, gamma,
     return traj1, traj2, psi1_acc, psi2_acc, psi_sum_acc, born1_acc, born2_acc, born_sum_acc
 
 @njit(fastmath=True)
-def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
+def simulate_solo(x_init, N_steps, dt, dx, c, D_psi, omega, gamma,
                  emit_amp, sigma_emit, alpha, D_x, epsilon,
                  x_min, x_max, Nx, thermalization):
     psi = np.zeros(Nx, dtype=np.complex128)
@@ -252,7 +252,7 @@ def simulate_solo(x_init, N_steps, dt, dx, D_psi, omega, gamma,
     n_acc = 0
     
     for t in range(N_steps):
-        psi = evolve_field(psi, x, dt, dx, D_psi, omega, gamma,
+        psi = evolve_field(psi, x, dt, dx, c, D_psi, omega, gamma,
                           emit_amp, sigma_emit, x_min, Nx)
         
         idx = int(round((x - x_min) / dx))
@@ -316,7 +316,7 @@ def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins
 # WORKER PARALLÈLE
 # ===============================
 
-def worker_particle(seed, particle_id, x_space, coupling_code, side):
+def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_p1, start_area_p2):
     """
     Executes one independent stochastic realization of the
     two-particle pilot-wave dynamics.
@@ -328,7 +328,7 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side):
   
     np.random.seed(seed)
     
-    if CFG.side == "rand":
+    if side == "rand":
         # Tirage aléatoire : 50% normal, 50% inversé
         if np.random.rand() < 0.5:
             area_p1 = (-15.0, -5.0)  # P1 gauche
@@ -338,29 +338,29 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side):
             area_p2 = (-15.0, -5.0)  # P2 gauche
     else:
         # Utilise les zones globales
-        area_p1 = CFG.start_area_p1
-        area_p2 = CFG.start_area_p2
+        area_p1 = start_area_p1
+        area_p2 = start_area_p2
     
     x1_init = np.random.uniform(area_p1[0], area_p1[1])
     x2_init = np.random.uniform(area_p2[0], area_p2[1])
     
     # 1. INTERACTION (avec accumulation des champs)
     t1, t2, psi1_acc, psi2_acc, psi_sum_acc, born1_acc, born2_acc, born_sum_acc = simulate_interaction(
-        x1_init, x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        x1_init, x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, coupling_code, CFG.thermalization
     )
     
     # 2. SOLO P1 (avec accumulation)
     ts1, phi1_acc, born1_accumulated = simulate_solo(
-        x1_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        x1_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
     
     # 3. SOLO P2 (avec accumulation)
     ts2, phi2_acc, born2_accumulated = simulate_solo(
-        x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.D_psi, CFG.omega, CFG.gamma,
+        x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
@@ -437,7 +437,9 @@ def run_pauli_simulation():
             particle_id = p,
             x_space = x_space,
             coupling_code = coupling_code,
-            side = CFG.SIDE
+            side = CFG.SIDE,
+            start_area_p1 = CFG.start_area_p1,
+            start_area_p2 = CFG.start_area_p2
         ) for p in tqdm(range(CFG.N_runs), desc="Paires")
     )
     
