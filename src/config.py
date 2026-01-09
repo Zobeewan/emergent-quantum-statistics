@@ -51,7 +51,8 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     # --- Simulation Control ---
     N_runs: int = 1200             # Number of independent simulated particles
 
-    # Initial configuration of particle positions
+    
+    # --- Initial configuration of particle positions --- 
     CONFIG = "norm"                     # "norm" = normal, "rand" = random, or inverted
     if CONFIG == "norm":
         start_area_p1 = (-15.0, -5.0)   # Particle 1 starts on the left
@@ -59,9 +60,14 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     elif CONFIG == "rand":
         start_area_p1 = None            # Random starts
         start_area_p2 = None            # Random starts
-    else:  # "inversé"
+    else:  # "inverted"
         start_area_p1 = (5.0, 15.0)     # Particle 1 starts on the right
         start_area_p2 = (-15.0, -5.0)   # Particle 2 starts on the left 
+
+    # --- Coupling ---
+    # "sum" →  |ψ|+|ψ| but fermionic behavior via effective repulsion
+    # "diff" → |ψ|-|ψ| but bosonic behavior via effective attraction
+    coupling_type = "sum"
 
 class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
