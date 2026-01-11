@@ -245,7 +245,7 @@ def run_born_simulation():
     print(f"  - Particles: {CFG.N_runs}")
     print(f"  - Steps/Particle: {CFG.N_steps}")
     print(f"  - Estimated memory: {total_memory_mb:.1f} MB")
-    print(f"\nPhysics :")
+    print(f"\nPhysics:")
     print(f"  γ={CFG.gamma}, D_ψ={CFG.D_psi}, ω={CFG.omega}, α={CFG.alpha}, Bruit={CFG.D_x}, amp={CFG.emit_amp}")
     print("="*70)
     
