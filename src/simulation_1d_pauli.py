@@ -469,19 +469,27 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
 # MAIN SIMULATION
 # ===============================
 
+"""
+Main orchestration routine for the Pauli exclusion simulation.
+
+The goal is to test whether Pauli-like exclusion emerges dynamically
+from local pilot-wave interactions, without imposing quantum statistics.
+"""
+
 def run_pauli_simulation():
+    # Determine the number of CPU cores to use.
     n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
     
     print("="*70)
     print("PAULI EXCLUSION — EMERGENT DYNAMICS")
     print("="*70)
-    print(f"Configuration :")
-    print(f"  - Cœurs CPU : {n_cores}/{mp.cpu_count()}")
-    print(f"  - Particules : {CFG.N_runs} paires")
-    print(f"  - Steps/paire : {CFG.N_steps}")
-    print(f"\nParamètres physiques :")
+    print(f"Configuration:")
+    print(f"  - CPU Cores: {n_cores}/{mp.cpu_count()}")
+    print(f"  - Particles: {CFG.N_runs} pairs")
+    print(f"  - Steps/Pair: {CFG.N_steps}")
+    print(f"\nPhysics :")
     print(f"  γ={CFG.gamma}, D_ψ={CFG.D_psi}, ω={CFG.omega}, α={CFG.alpha}, D_x={CFG.D_x}")
-    print(f"  Couplage : {CFG.coupling_type}")
+    print(f"  Coupling: {CFG.coupling_type}")
     print("="*70)
     
     x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
@@ -490,9 +498,10 @@ def run_pauli_simulation():
     start_time = time.time()
     
     # ========================================
-    # PARALLÉLISATION
+    # PARALLEL EXECUTION
     # ========================================
-    print("\n🚀 Lancement des simulations parallèles...\n")
+    # Each worker runs a fully independent stochastic realization.
+    print("\n🚀 Starting parallel simulation...\n")
     
     results = Parallel(n_jobs=n_cores, backend='loky', verbose=0)(
         delayed(worker_particle)(
@@ -503,30 +512,34 @@ def run_pauli_simulation():
             side = CFG.SIDE,
             start_area_p1 = CFG.start_area_p1,
             start_area_p2 = CFG.start_area_p2
-        ) for p in tqdm(range(CFG.N_runs), desc="Paires")
+        ) for p in tqdm(range(CFG.N_runs), desc="Pairs")
     )
     
     elapsed = time.time() - start_time
-    print(f"\n✓ Simulation terminée en {elapsed/60:.2f} min")
+    print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
     
     # ========================================
-    # AGRÉGATION
+    # AGGREGATION OF ENSEMBLE STATISTICS
     # ========================================
-    print("\n📊 Agrégation des statistiques...")
-    
+    print("\n📊 Aggregating statistics...")
+
+    # Histograms → empirical particle densities
     hist_p1_total = np.zeros(CFG.Nx)
     hist_p2_total = np.zeros(CFG.Nx)
+    # ψ fields → time-averaged guiding fields
     psi1_mean = np.zeros(CFG.Nx, dtype=np.complex128)
     psi2_mean = np.zeros(CFG.Nx, dtype=np.complex128)
     psi_sum_mean = np.zeros(CFG.Nx, dtype=np.complex128)
     phi1_mean = np.zeros(CFG.Nx, dtype=np.complex128)
     phi2_mean = np.zeros(CFG.Nx, dtype=np.complex128)
+    # |ψ|² → Born-rule reference densities
     born1_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born2_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born_sum_mean = np.zeros(CFG.Nx, dtype=np.float64)
     integral_born = np.zeros(CFG.Nx, dtype=np.float64)
     born1_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born2_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
+    # Distances → pair correlation statistics
     dist_real_all = []
     dist_ghost_all = []
     positions_p1_all = []
@@ -550,7 +563,7 @@ def run_pauli_simulation():
         positions_p1_all.extend(res['positions_p1'])
         positions_p2_all.extend(res['positions_p2'])
     
-    # Normalisation
+    # Normalization
     psi1_mean /= CFG.N_runs
     psi2_mean /= CFG.N_runs
     psi_sum_mean /= CFG.N_runs
@@ -562,12 +575,12 @@ def run_pauli_simulation():
     born1_accumulated_mean /= CFG.N_runs
     born2_accumulated_mean /= CFG.N_runs
     
-    # Densités observées
+    # Observed particle densities from trajectory histograms
     rho_p1_obs = hist_p1_total / (np.sum(hist_p1_total) * CFG.dx)
     rho_p2_obs = hist_p2_total / (np.sum(hist_p2_total) * CFG.dx)
     rho_total_obs = rho_p1_obs + rho_p2_obs
     
-    # |ψ|² observés
+    # Born densities extracted from time-averaged guiding fields
     born_p1 = born1_mean                    
     born_p1 /= np.trapz(born_p1, x_space)
     
@@ -575,7 +588,7 @@ def run_pauli_simulation():
     born_p2 /= np.trapz(born_p2, x_space)
         
     integral_born = np.trapz(born_sum_mean, x_space)        
-    born_sum = 2 * (born_sum_mean / integral_born)          # normalisée à 2 car 2 Particules
+    born_sum = 2 * (born_sum_mean / integral_born)          # The total Born density is normalized to 2 (because the system contains two particles)
     
     dist_real_all = np.array(dist_real_all)
     dist_ghost_all = np.array(dist_ghost_all)
@@ -599,26 +612,22 @@ def run_pauli_simulation():
     }
 
 # ===============================
-# CALCUL DENSITÉS THÉORIQUES
+# THEORETICAL DENSITIES
 # ===============================
 
 def compute_theoretical_densities(x_space, phi1, phi2):
     """
-    One-particle marginal densities.
-    
-    ρ₁(x) and ρ₂(x) are obtained by integrating the joint distribution
-    over the other particle.
-    
-    For identical particles in a symmetric setup, these marginals
-    are expected to be identical.
-    
-    The exclusion is in the correlation, not in ρ(x).
+    Computes theoretical one- and two-particle densities
+    from standard quantum mechanics.
+
+    These densities are NOT used in the dynamics.
+    They serve only as reference distributions for comparison.
     """
   
     dx_local = x_space[1] - x_space[0]
     Nx = len(x_space)
     
-    # Normalisation des états individuels
+    # Normalization of individual states
     norm1 = np.sqrt(np.trapz(np.abs(phi1)**2, x_space))
     norm2 = np.sqrt(np.trapz(np.abs(phi2)**2, x_space))
     
@@ -627,35 +636,36 @@ def compute_theoretical_densities(x_space, phi1, phi2):
     if norm2 > 0:
         phi2 = phi2 / norm2
     
-    print(f"   Calcul sur grille {Nx}×{Nx}...")
+    print(f"   Grid calculation {Nx}×{Nx}...")
 
-    # Grilles 2D complètes
+    # Full 2D configuration-space wavefunctions ψ(x₁, x₂)
     phi1_x1 = phi1[:, np.newaxis]  # (Nx, 1)
     phi2_x2 = phi2[np.newaxis, :]  # (1, Nx)
     phi1_x2 = phi1[np.newaxis, :]
     phi2_x1 = phi2[:, np.newaxis]
     
-    # Fonctions d'onde 2-particules
+    # 2-particles wave functions
     psi_antisym = (phi1_x1 * phi2_x2 - phi1_x2 * phi2_x1) / np.sqrt(2)
     psi_sym = (phi1_x1 * phi2_x2 + phi1_x2 * phi2_x1) / np.sqrt(2)
     
     rho_2d_fermion = np.abs(psi_antisym)**2
     rho_2d_boson = np.abs(psi_sym)**2
     
-    # Marginalisation
-    rho1_fermion = np.trapz(rho_2d_fermion, x_space, axis=1)  # Intègre sur x₂
-    rho2_fermion = np.trapz(rho_2d_fermion, x_space, axis=0)  # Intègre sur x₁
+    # Marginal densities obtained by integrating over the other particle.
+    # Note: Pauli exclusion affects correlations, not one-particle marginals.
+    rho1_fermion = np.trapz(rho_2d_fermion, x_space, axis=1)  # Integrates on x₂
+    rho2_fermion = np.trapz(rho_2d_fermion, x_space, axis=0)  # Integrates on x₁
     
     rho1_boson = np.trapz(rho_2d_boson, x_space, axis=1)
     rho2_boson = np.trapz(rho_2d_boson, x_space, axis=0)
     
-    # Normalisation finale
+    # Final Normalization
     rho1_fermion /= np.trapz(rho1_fermion, x_space)
     rho2_fermion /= np.trapz(rho2_fermion, x_space)
     rho1_boson /= np.trapz(rho1_boson, x_space)
     rho2_boson /= np.trapz(rho2_boson, x_space)
     
-    # Densités totales théoriques
+    # Total Theoretical Densities
     rho_total_fermion = rho1_fermion + rho2_fermion
     rho_total_boson = rho1_boson + rho2_boson
     
@@ -670,12 +680,19 @@ def compute_theoretical_densities(x_space, phi1, phi2):
     }
 
 # ===============================
-# COMPARAISON SCHRÖDINGER
+# SCHRÖDINGER COMPARISON
 # ===============================
 
 def compare_schrodinger(x_space, sigma_target):
     """
-    Évolution Schrödinger libre jusqu'à convergence.
+    The model simulates a freely spreading wave packet (diffusive regime).
+    
+    The loop below searches for the quantum time t_QM at which the width of the
+    quantum packet (σ_qm) matches the model width (σ_x).
+    
+    This establishes the temporal scaling factor between the two dynamics: τ_stochastic / τ_Schrödinger
+    
+    Approximate relation: steps ∝ σ² / (ω·dt)
     """
     dx_local = x_space[1] - x_space[0]
     psi_qm = np.exp(-0.5*(x_space/2.0)**2).astype(np.complex128)
@@ -689,19 +706,19 @@ def compare_schrodinger(x_space, sigma_target):
     max_steps = 50000
     
     while steps < max_steps:
-        # Laplacien
+        # Free evolution
         lap_qm = np.zeros_like(psi_qm)
         lap_qm[1:-1] = (psi_qm[2:] - 2*psi_qm[1:-1] + psi_qm[:-2]) / dx_local**2
         
-        # Évolution
+        # Evolution
         psi_qm += CFG.dt * (1j * CFG.omega * lap_qm)
         
-        # Normalisation
+        # Normalization
         norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
         if norm > 0:
             psi_qm /= norm
         
-        # Largeur actuelle
+        # Current width
         rho_qm_temp = np.abs(psi_qm)**2
         rho_qm_temp /= np.trapz(rho_qm_temp, x_space)
         mean_x = np.trapz(x_space * rho_qm_temp, x_space)
@@ -714,9 +731,9 @@ def compare_schrodinger(x_space, sigma_target):
             best_step = steps
             best_psi = psi_qm
         else:    
-            print(f"\nCOMPARAISON SCHRÖDINGER\n")
-            print(f"Convergence en {best_step} étapes QM")
-            print(f"Ratio temporel : τ_hydro/τ_QM = {N_steps/best_step:.2f}")
+            print(f"\nSCHRÖDINGER COMPARISON\n")
+            print(f"Convergence in {best_step} QM steps")
+            print(f"Temporal ratio: τ_hydro/τ_QM = {N_steps/best_step:.2f}")
             break
         
         steps += 1
@@ -727,32 +744,41 @@ def compare_schrodinger(x_space, sigma_target):
     return rho_qm
 
 # ===============================
-# ANALYSE QUANTITATIVE
+# QUANTUM ANALYSIS
 # ===============================
 
 def analyze_results(data, theory):
     """
-    Applique les tests du Code 1 : corrélation et erreur L¹.
+    Performs quantitative diagnostics on the simulation results.
+
+    The analysis includes:
+    • Correlation with Born-rule densities
+    • L¹ distance errors
+    • Comparison with fermionic and bosonic predictions
+    • Pair correlation function g(r)
+    • Emergent exclusion diagnostics
+
+    No assumption of quantum statistics is made in the dynamics.
     """
     x_space = data['x_space']
     
     # ========================================
-    # 1. PARTICULE 1
+    # 1. PARTICLE 1
     # ========================================
     # vs |ψ1|²
     corr_p1_born = np.corrcoef(data['rho_p1_obs'], data['born_p1'])[0, 1]
     error_L1_p1_born = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - data['born_p1']), x_space)
     
-    # vs Théorie fermions
+    # vs Theorical fermions
     corr_p1_fermion = np.corrcoef(data['rho_p1_obs'], theory['rho1_fermion'])[0, 1]
     error_L1_p1_fermion = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_fermion']), x_space)
     
-    # vs Théorie bosons
+    # vs Theorical bosons
     corr_p1_boson = np.corrcoef(data['rho_p1_obs'], theory['rho1_boson'])[0, 1]
     error_L1_p1_boson = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_boson']), x_space)
     
     # ========================================
-    # 2. PARTICULE 2
+    # 2. PARTICLE 2
     # ========================================
     corr_p2_born = np.corrcoef(data['rho_p2_obs'], data['born_p2'])[0, 1]
     error_L1_p2_born = 0.5 * np.trapz(np.abs(data['rho_p2_obs'] - data['born_p2']), x_space)
@@ -764,7 +790,7 @@ def analyze_results(data, theory):
     error_L1_p2_boson = 0.5 * np.trapz(np.abs(data['rho_p2_obs'] - theory['rho2_boson']), x_space)
     
     # ========================================
-    # 3. DENSITÉ TOTALE
+    # 3. TOTAL DENSITY 
     # ========================================
     corr_total_born = np.corrcoef(data['rho_total_obs'], data['born_sum'])[0, 1]
     error_L1_total_born = 0.5 * np.trapz(np.abs(data['rho_total_obs'] - data['born_sum']), x_space)
@@ -776,14 +802,14 @@ def analyze_results(data, theory):
     error_L1_total_boson = 0.5 * np.trapz(np.abs(data['rho_total_obs'] - theory['rho_total_boson']), x_space)
     
     # ========================================
-    # 4. FONCTION g(r)
+    # 4. g(r) FONCTION
     # ========================================
     r_vals, g_r, hist_real, hist_ghost = compute_pair_correlation(
         data['dist_real'], data['dist_ghost'], CFG.x_min, CFG.x_max, bins=80
     )
     g_0 = g_r[np.argmin(np.abs(r_vals - 1.0))]
     
-    # Facteur d'exclusion
+    # Exclusion Factor
     overlap_real = np.mean(data['dist_real'] < 2.0)
     overlap_ghost = np.mean(data['dist_ghost'] < 2.0)
     exclusion_factor = overlap_ghost / (overlap_real + 1e-9)
@@ -801,60 +827,60 @@ def analyze_results(data, theory):
     sigma_x_p2 = np.sqrt(np.trapz((x_space - mean_x_p2)**2 * data['born_p2'], x_space))
     rho_qm_p2 = compare_schrodinger(x_space, sigma_x_p2)
     
-    # Totale
+    # Total
     rho_qm_total = rho_qm_p1 + rho_qm_p2
 
-    # Vérification symétrie
-    print(f"\n5. LARGEURS :")
+    # Symmetry check
+    print(f"\n5. WIDTHS :")
     print(f"   σ_P1    : {sigma_x_p1:.3f}")
     print(f"   σ_P2    : {sigma_x_p2:.3f}")
     # print(f"   σ_total : {sigma_x_total:.3f}")
-    print(f"   Asymétrie : {abs(sigma_x_p1 - sigma_x_p2)/sigma_x_p1 * 100:.1f}%")
+    print(f"   Asymmetry : {abs(sigma_x_p1 - sigma_x_p2)/sigma_x_p1 * 100:.1f}%")
 
     # ========================================
-    # AFFICHAGE
+    # DISPLAY
     # ========================================
     print("\n" + "="*70)
-    print("RÉSULTATS QUANTITATIFS")
+    print("QUANTITATIVE RESULTS")
     print("="*70)
     
-    print("\n1. PARTICULE 1 :")
-    print(f"   vs |ψ₁|² observé  : corr={corr_p1_born:.4f}, L¹={error_L1_p1_born:.5f}")
-    print(f"   vs Théorie fermion: corr={corr_p1_fermion:.4f}, L¹={error_L1_p1_fermion:.5f}")
-    print(f"   vs Théorie boson  : corr={corr_p1_boson:.4f}, L¹={error_L1_p1_boson:.5f}")
+    print("\n1. PARTICLE 1:")
+    print(f"   vs |ψ₁|² observed: corr={corr_p1_born:.4f}, L¹={error_L1_p1_born:.5f}")
+    print(f"   vs Theorical fermion: corr={corr_p1_fermion:.4f}, L¹={error_L1_p1_fermion:.5f}")
+    print(f"   vs Theorical boson: corr={corr_p1_boson:.4f}, L¹={error_L1_p1_boson:.5f}")
     
-    print("\n2. PARTICULE 2 :")
-    print(f"   vs |ψ₂|² observé  : corr={corr_p2_born:.4f}, L¹={error_L1_p2_born:.5f}")
-    print(f"   vs Théorie fermion: corr={corr_p2_fermion:.4f}, L¹={error_L1_p2_fermion:.5f}")
-    print(f"   vs Théorie boson  : corr={corr_p2_boson:.4f}, L¹={error_L1_p2_boson:.5f}")
+    print("\n2. PARTICULE 2:")
+    print(f"   vs |ψ₂|² observed: corr={corr_p2_born:.4f}, L¹={error_L1_p2_born:.5f}")
+    print(f"   vs Theorical fermion: corr={corr_p2_fermion:.4f}, L¹={error_L1_p2_fermion:.5f}")
+    print(f"   vs Theoricale boson: corr={corr_p2_boson:.4f}, L¹={error_L1_p2_boson:.5f}")
     
-    print("\n3. DENSITÉ TOTALE :")
-    print(f"   vs |ψ₁+ψ₂|² obs   : corr={corr_total_born:.4f}, L¹={error_L1_total_born:.5f}")
-    print(f"   vs Théorie fermion: corr={corr_total_fermion:.4f}, L¹={error_L1_total_fermion:.5f}")
-    print(f"   vs Théorie boson  : corr={corr_total_boson:.4f}, L¹={error_L1_total_boson:.5f}")
+    print("\n3. TOTAL DENSITY:")
+    print(f"   vs |ψ₁+ψ₂|² observed: corr={corr_total_born:.4f}, L¹={error_L1_total_born:.5f}")
+    print(f"   vs Theorical fermion: corr={corr_total_fermion:.4f}, L¹={error_L1_total_fermion:.5f}")
+    print(f"   vs Theorical boson  : corr={corr_total_boson:.4f}, L¹={error_L1_total_boson:.5f}")
     
-    print("\n4. CORRÉLATIONS DE PAIRES :")
-    print(f"   g(r≈1)            : {g_0:.3f}")
-    print(f"   Facteur d'exclusion: {exclusion_factor:.2f}x")
+    print("\n4. PAIR CORRELATIONS:")
+    print(f"   g(r≈1): {g_0:.3f}")
+    print(f"   Exclusion Factor: {exclusion_factor:.2f}x")
     
     print("\n" + "="*70)
     print("DIAGNOSTIC")
     print("="*70)
     
-    # Critère principal : convergence vers Born
+    # Born Convergence
     born_ok = (corr_p1_born > 0.95 and corr_p2_born > 0.95 and 
                error_L1_p1_born < 0.05 and error_L1_p2_born < 0.05)
     
     if born_ok and g_0 < 0.5 and exclusion_factor > 2.0:
-        print("🎉 COMPORTEMENT FERMIONIQUE CONFIRMÉ")
-        print(f"   ✓ Convergence Born : ρ ≈ |ψ|² (corr>{0.95:.2f})")
-        print(f"   ✓ Facteur d'exclusion (réel/fantomes) fortement augmenter")
-        print(f"   ✓ Trou de Fermi : g(1)={g_0:.3f} < 0.5")
+        print("🎉 FERMIONIC BEHAVIOR CONFIRMED")
+        print(f"   ✓ Born Convergence : ρ ≈ |ψ|² (corr>{0.95:.2f})")
+        print(f"   ✓ Exclusion factor (real vs ghost) significantly enhanced")
+        print(f"   ✓ Fermi Hole: g(1)={g_0:.3f} < 0.5")
     elif born_ok:
-        print("✓ CONVERGENCE BORN VALIDÉE")
-        print("⚠️  Signature fermionique partielle")
+        print("✓ BORN CONVERGENCE BORN CONFIRMED")
+        print("⚠️  Partial fermionic signature")
     else:
-        print("❌ Convergence Born insuffisante")
+        print("❌ Insufficient fermionic signature")
 
     return {
         'corr_p1_born': corr_p1_born,
@@ -886,12 +912,16 @@ def analyze_results(data, theory):
     }
     
 # ===============================
-# VISUALISATION (PAGE 1)
+# VISUALIZATION (PAGE 1)
 # ===============================
 
 def plot_results_page1(data, theory, metrics):
     """
-    Page 1 : Densités individuelles + totale + résidus
+    Page 1:
+    • One-particle densities
+    • Comparison with Born rule
+    • Fermionic and bosonic theoretical references
+    • Residuals highlighting deviations
     """
     x = data['x_space']
     
@@ -899,7 +929,7 @@ def plot_results_page1(data, theory, metrics):
     gs = fig.add_gridspec(3, 2, hspace=0.35, wspace=0.3)
     
     # ========================================
-    # 1. PARTICULE 1 - Densités
+    # 1. PARTICLE 1 - Density
     # ========================================
     ax1 = fig.add_subplot(gs[0, 0])
     mean_pos_p1 = np.average(x, weights=data['rho_p1_obs'])
@@ -916,7 +946,7 @@ def plot_results_page1(data, theory, metrics):
                  fontweight='bold', fontsize=11)
     
     # ========================================
-    # 2. PARTICULE 2 - Densités
+    # 2. PARTICLE 2 - Density
     # ========================================
     ax2 = fig.add_subplot(gs[0, 1])
     mean_pos_p2 = np.average(x, weights=data['rho_p2_obs'])
@@ -932,7 +962,7 @@ def plot_results_page1(data, theory, metrics):
     ax2.set_title(f'Particule 2 (corr_Born={metrics["corr_p2_born"]:.4f}, L¹={metrics["error_L1_p2_born"]:.5f})', fontweight='bold', fontsize=11)
     
     # ========================================
-    # 3. RÉSIDUS P1
+    # 3. RESIDUES P1
     # ========================================
     ax3 = fig.add_subplot(gs[1, 0])
     res_born = data['rho_p1_obs'] - data['born_p1']
@@ -948,7 +978,7 @@ def plot_results_page1(data, theory, metrics):
     ax3.set_title('Résidus P1', fontweight='bold', fontsize=11)
     
     # ========================================
-    # 4. RÉSIDUS P2
+    # 4. RESIDUES P2
     # ========================================
     ax4 = fig.add_subplot(gs[1, 1])
     res_born_p2 = data['rho_p2_obs'] - data['born_p2']
@@ -964,7 +994,7 @@ def plot_results_page1(data, theory, metrics):
     ax4.set_title('Résidus P2', fontweight='bold', fontsize=11)
     
     # ========================================
-    # 5. DENSITÉ TOTALE
+    # 5. TOTAL DENSITY 
     # ========================================
     ax5 = fig.add_subplot(gs[2, :])
     ax5.plot(x, data['rho_total_obs'], 'b-', lw=2.5, label='ρ₁+ρ₂ observée')
@@ -990,15 +1020,19 @@ def plot_results_page1(data, theory, metrics):
     plt.savefig(filename, dpi=200, bbox_inches='tight')
     plt.show()
     
-    print(f"\n📊 Page 1 sauvegardée : {filename}")
+    print(f"\n📊 Page 1 saved: {filename}")
 
 # ===============================
-# VISUALISATION (PAGE 2)
+# VISUALIZATION (PAGE 2)
 # ===============================
 
 def plot_results_page2(data, theory, metrics):
     """
-    Page 2 : g(r), distances, heatmap 2D
+    Page 2:
+    • Pair correlation function g(r)
+    • Distance distributions (real vs ghost)
+    • Joint position heatmap
+    • Comparison with fermionic theoretical exclusion
     """
     x = data['x_space']
     r_vals, g_r = metrics['g_r']
@@ -1007,7 +1041,7 @@ def plot_results_page2(data, theory, metrics):
     gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.3)
     
     # ========================================
-    # 1. FONCTION g(r)
+    # 1. g(r) FONCTION
     # ========================================
     ax1 = fig.add_subplot(gs[0, 0])
     ax1.plot(r_vals, g_r, 'r-', linewidth=2.5, label='g(r) mesuré')
@@ -1024,7 +1058,7 @@ def plot_results_page2(data, theory, metrics):
     ax1.grid(alpha=0.3)
     
     # ========================================
-    # 2. DISTRIBUTION DES DISTANCES (CORRIGÉE)
+    # 2. DISTANCES DISTRIBUTION
     # ========================================
     ax2 = fig.add_subplot(gs[0, 1])
     ax2.plot(r_vals, metrics['hist_ghost'], 'gray', lw=2, alpha=0.6, label='Fantômes')
@@ -1060,7 +1094,7 @@ def plot_results_page2(data, theory, metrics):
     plt.colorbar(im, ax=ax3, label='Densité')
     
     # ========================================
-    # 4. HEATMAP THÉORIQUE FERMIONS
+    # 4. THEORETICAL FERMIONS HEATMAP
     # ========================================
     ax4 = fig.add_subplot(gs[1, 1])
     rho_2d = theory['rho_2d_fermion']
@@ -1068,7 +1102,7 @@ def plot_results_page2(data, theory, metrics):
     im2 = ax4.imshow(rho_2d.T, origin='lower', extent=extent_theory, cmap='hot', 
                      aspect='auto', interpolation='bilinear')
     
-    # Diagonale théorique
+    # Theoretical diagonal
     ax4.plot([CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max], 'cyan', linewidth=2.5, 
              linestyle='--', label='x₁=x₂')
     
@@ -1089,7 +1123,7 @@ def plot_results_page2(data, theory, metrics):
     plt.savefig(filename, dpi=200, bbox_inches='tight')
     plt.show()
     
-    print(f"📊 Page 2 sauvegardée : {filename}")
+    print(f"📊 Page 2 saved: {filename}")
 
 # ===============================
 # MAIN
@@ -1099,19 +1133,19 @@ if __name__ == "__main__":
     # 1. Simulation
     data = run_pauli_simulation()
     
-    # 2. Calcul des densités théoriques
-    print("\n🔬 Calcul des densités théoriques...")
+    # 2. Calculation of theoretical densities
+    print("\n🔬 Calculation of theoretical densities...")
     theory = compute_theoretical_densities(
         data['x_space'], data['phi1_mean'], data['phi2_mean']
     )
     
-    # 3. Analyse quantitative
+    # 3. Quantitative analysis
     metrics = analyze_results(data, theory)
     
-    # 4. Visualisation (2 pages)
+    # 4. Visualization (2 pages)
     plot_results_page1(data, theory, metrics)
     plot_results_page2(data, theory, metrics)
     
     print("\n" + "="*70)
-    print("✓ SIMULATION TERMINÉE")
+    print("✓ SIMULATION COMPLETED")
     print("="*70)
