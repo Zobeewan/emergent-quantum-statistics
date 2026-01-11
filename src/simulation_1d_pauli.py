@@ -181,6 +181,18 @@ def evolve_field(psi, x_particle, dt, dx, c, D_psi, omega, gamma,
 def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gamma,
                         emit_amp, sigma_emit, alpha, D_x, epsilon, 
                         x_min, x_max, Nx, coupling, thermalization):
+
+    """
+    This function implements the full two-particle model:
+    • Each particle emits its own complex guiding field
+    • Both particles are guided by the phase gradient of a
+      combined effective field (ψ₁ ± ψ₂)
+    • No antisymmetrization or exclusion rule is imposed
+    • Stochastic diffusion ensures ergodicity
+
+    After a thermalization period, ensemble-averaged fields
+    and Born densities are accumulated.
+    """
                           
     psi1 = np.zeros(Nx, dtype=np.complex128)
     psi2 = np.zeros(Nx, dtype=np.complex128)
@@ -188,8 +200,7 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
     x1, x2 = x1_init, x2_init
     traj1 = np.zeros(N_steps)
     traj2 = np.zeros(N_steps)
-    
-    # Accumulation des champs après thermalisation
+                          
     psi1_acc = np.zeros(Nx, dtype=np.complex128)
     psi2_acc = np.zeros(Nx, dtype=np.complex128)
     psi_sum_acc = np.zeros(Nx, dtype=np.complex128)
@@ -205,11 +216,14 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
                            emit_amp, sigma_emit, x_min, Nx)
         psi2 = evolve_field(psi2, x2, dt, dx, c, D_psi, omega, gamma,
                            emit_amp, sigma_emit, x_min, Nx)
-        
+
+        # Effective guiding field.
+        # Note: no symmetry constraint is imposed on trajectories.
+        # Any exclusion effect must emerge dynamically.
         if coupling == 1:
             psi_guide = psi1 + psi2
         else:
-            psi_guide = psi1 - psi2
+            psi_guide = psi1 - psi2    # equivalent to a phase shift of π : ψ₁ - ψ₂ = ψ₁(0) + ψ₂(π)
         
         idx1 = int(round((x1 - x_min) / dx))
         idx2 = int(round((x2 - x_min) / dx))
@@ -221,7 +235,9 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
         if 1 < idx2 < Nx-2:
             d2 = get_drift(psi_guide[idx2], psi_guide[idx2-1],
                           psi_guide[idx2+1], dx, epsilon, alpha)
-        
+          
+        # Stochastic diffusion term.
+        # Ensures ergodicity and exploration of configuration space.
         noise1 = np.sqrt(2 * D_x * dt) * np.random.randn()
         noise2 = np.sqrt(2 * D_x * dt) * np.random.randn()
         
@@ -236,7 +252,7 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
         traj1[t] = x1
         traj2[t] = x2
         
-        # Accumulation après thermalisation
+        # Accumulation after thermalization.
         if t >= thermalization:
             psi1_acc += psi1
             psi2_acc += psi2
@@ -246,7 +262,7 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
             born_sum_acc += np.abs(psi_guide)**2
             n_acc += 1
     
-    # Normalisation
+    # Normalization
     if n_acc > 0:
         psi1_acc /= n_acc
         psi2_acc /= n_acc
@@ -261,11 +277,24 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
 def simulate_solo(x_init, N_steps, dt, dx, c, D_psi, omega, gamma,
                  emit_amp, sigma_emit, alpha, D_x, epsilon,
                  x_min, x_max, Nx, thermalization):
+
+    """
+    Simulate the dynamics of a single particle interacting
+    only with its own pilot-wave field.
+
+    This function is used to generate 'ghost trajectories'
+    serving as an uncorrelated reference for pair statistics.
+
+    The comparison between:
+    • real two-particle distances
+    • ghost (independent) distances
+    """
+
+
     psi = np.zeros(Nx, dtype=np.complex128)
     x = x_init
     traj = np.zeros(N_steps)
     
-    # Accumulation du champ
     psi_accumulated = np.zeros(Nx, dtype=np.complex128)
     born_accumulated = np.zeros(Nx, dtype=np.float64)
     n_acc = 0
@@ -287,13 +316,13 @@ def simulate_solo(x_init, N_steps, dt, dx, c, D_psi, omega, gamma,
         
         traj[t] = x
         
-        # Accumulation après thermalisation
+        # Accumulation after thermalization.
         if t >= thermalization:
             psi_accumulated += psi
             born_accumulated += np.abs(psi)**2
             n_acc += 1
     
-    # Normalisation
+    # Normalization
     if n_acc > 0:
         psi_accumulated /= n_acc
         born_accumulated /= n_acc
@@ -307,7 +336,8 @@ def simulate_solo(x_init, N_steps, dt, dx, c, D_psi, omega, gamma,
 Pair correlation function g(r).
 
 Defined as:
-    g(r) = ⟨ ρ(x₁, x₂) ⟩ / (ρ₁(x₁) ρ₂(x₂))
+    g(r) = ⟨ ρ(x₁, x₂) ⟩ / (ρ₁(x₁) ρ₂(x₂))     
+         = P_real(r) / P_uncorrelated(r)
 
 with r = |x₁ − x₂|.
 
@@ -340,9 +370,9 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
     Executes one independent stochastic realization of the
     two-particle pilot-wave dynamics.
 
-    Each run contributes one sample to the ensemble statistics.
-    The Pauli exclusion principle is hardly visible at the level of
-    a single random trajectory, but statistically emerges after ensemble averaging.
+    Individual trajectories do not exhibit explicit exclusion.
+    But The Pauli exclusion principle statistically emerges after
+    ensemble averaging.
     """
   
     np.random.seed(seed)
