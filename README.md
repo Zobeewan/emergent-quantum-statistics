@@ -28,7 +28,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     Result: Spontaneous anti-correlation and emergence of the Fermi hole (g(2)(r)<<1).
 
-    Performance: ~10-30 minutes (depending on CPU cores).
+    Performance: ~10-50 minutes (depending on CPU cores).
 
 3. Born rule and Polarization & Vectorial Flow (2D)
 
@@ -36,7 +36,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     Physics: 2D extension showing that the probability current J generates local vortex structures (emergent spin) from a scalar field.
 
-    Performance: ~30-120 minutes depending on CPU cores.
+    Performance: ~1-5 hours depending on CPU cores.
 
 
 ----------
