@@ -24,8 +24,8 @@ Physical Model
 --------------
 Each particle continuously emits and interacts with its own complex
 guiding field ψ₁(x,t), ψ₂(x,t). Particle dynamics is governed by the
-phase gradient of an effective guiding field constructed from these
-individual fields.
+phase gradient of an effective guiding field constructed from the sum 
+of these individual fields.
 
 Key assumptions:
 • No antisymmetrization of trajectories
@@ -33,7 +33,6 @@ Key assumptions:
 • No fermionic statistics imposed
 
 Only local field–particle coupling and stochastic diffusion are included.
-Symmetric or antisymmetric coupling is enforced by local dynamics.
 
 Key Result:
 -----------
@@ -73,16 +72,22 @@ To change physics or simulation settings, edit 'src/config.py'
 """
 
 # --- Initial configuration of particle positions --- 
-CFG.SIDE = "norm"      # "norm" = Particle 1 on the left, Particle 2 on the right
-                       # "rand" = Random                   
-                       # anything else starts inverted
+#CFG.SIDE = "norm"             # Uncomment this line to directly modify the starting position here.
+
+# "norm" = Particle 1 on the left, Particle 2 on the right
+# "rand" = Randomized left/right assignment                   
+# any other value : inverted configuration
 
 # --- Coupling ---
-CFG.coupling_type = "sum"    # "sum" →  |ψ|+|ψ| but fermionic behavior via effective repulsion
-                             # "diff" → |ψ|-|ψ| but bosonic behavior via effective attraction
+#CFG.coupling_type = "sum"     # Uncomment this line to directly modify the coupling here.
+
+# "sum"  : ψ_guide = ψ₁ + ψ₂
+#          Leads to effective repulsion and fermion-like correlations
+# "diff" : ψ_guide = ψ₁ − ψ₂
+#          Leads to effective attraction and boson-like correlations
 
 # ===============================
-# NOYAU PHYSIQUE (Numba)
+# PHYSICAL CORE (Numba)
 # ===============================
 
 @njit(fastmath=True)
@@ -95,6 +100,7 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
     """
   
     amp2 = np.abs(psi_val)**2
+    # Negligible field amplitude → no reliable phase information
     if amp2 < epsilon**2:
         return 0.0
       
@@ -104,10 +110,12 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
 
     amp_prev = np.abs(psi_prev)
     amp_next = np.abs(psi_next)
-
+  
+    # Avoid phase jumps across near-zero amplitudes
     if amp_prev < epsilon or amp_next < epsilon:
         return 0.0
-
+      
+    # Discrete phase gradient
     dph = np.angle(psi_next) - np.angle(psi_prev)
 
     # Phase unwrapping
@@ -119,11 +127,14 @@ def get_drift(psi_val, psi_prev, psi_next, dx, epsilon, alpha):
     
     grad_phase = dph / (2 * dx)
     weight = amp2 / (amp2 + epsilon**2)
+
+    # Guidance equation
     drift = alpha * weight * grad_phase
     
     if not np.isfinite(drift):
         return 0.0
-
+      
+    # Numerical stability: limit extreme velocities
     if drift > 10.0: drift = 10.0
     elif drift < -10.0: drift = -10.0
     
@@ -138,17 +149,19 @@ def evolve_field(psi, x_particle, dt, dx, c, D_psi, omega, gamma,
     Contributions:
     - Diffusion (Laplacian)
     - Oscillation (imaginary term)
-    - Damping
+    - Linear Damping
     - Particle emission (localized Gaussian source)
-    - Optional static external source
     """
-    
+                  
+    # Discrete Laplacian
     lap = np.zeros_like(psi)
     for i in range(1, Nx-1):
         lap[i] = (psi[i+1] - 2*psi[i] + psi[i-1]) / dx**2
-    
+
+    # Field evolution: diffusion + oscillation + damping
     psi_new = psi + dt * c * ((D_psi + 1j * omega) * lap - gamma * psi)
-    
+
+    # Localized particle emission
     cutoff = 6.0 * sigma_emit
     cutoff_idx = int(cutoff / dx)
     idx = int(round((x_particle - x_min) / dx))
@@ -159,6 +172,7 @@ def evolve_field(psi, x_particle, dt, dx, c, D_psi, omega, gamma,
     for i in range(i_start, i_end):
         xi = x_min + i * dx
         dist2 = (xi - x_particle)**2
+        # Gaussian emission centered on the particle
         psi_new[i] += emit_amp * np.exp(-0.5 * dist2 / sigma_emit**2) * dt
     
     return psi_new
@@ -167,6 +181,7 @@ def evolve_field(psi, x_particle, dt, dx, c, D_psi, omega, gamma,
 def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gamma,
                         emit_amp, sigma_emit, alpha, D_x, epsilon, 
                         x_min, x_max, Nx, coupling, thermalization):
+                          
     psi1 = np.zeros(Nx, dtype=np.complex128)
     psi2 = np.zeros(Nx, dtype=np.complex128)
     
