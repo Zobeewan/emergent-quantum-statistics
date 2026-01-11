@@ -60,4 +60,5 @@ This code relies on Numba for JIT compilation and Joblib for parallel execution.
 ----------
 ⚙️ Model Parameters
 
-Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined at the top of each script. The default values are tuned for the "quantum regime" convergence.    
+Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside src/config.py 
+The default values are tuned for the "quantum regime" convergence.
