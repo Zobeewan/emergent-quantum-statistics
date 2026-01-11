@@ -193,14 +193,16 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
     After a thermalization period, ensemble-averaged fields
     and Born densities are accumulated.
     """
-                          
+
+    # Individual guiding fields for each particle
     psi1 = np.zeros(Nx, dtype=np.complex128)
     psi2 = np.zeros(Nx, dtype=np.complex128)
     
     x1, x2 = x1_init, x2_init
     traj1 = np.zeros(N_steps)
     traj2 = np.zeros(N_steps)
-                          
+
+    # Field and density accumulation after thermalization
     psi1_acc = np.zeros(Nx, dtype=np.complex128)
     psi2_acc = np.zeros(Nx, dtype=np.complex128)
     psi_sum_acc = np.zeros(Nx, dtype=np.complex128)
@@ -210,7 +212,8 @@ def simulate_interaction(x1_init, x2_init, N_steps, dt, dx, c, D_psi, omega, gam
     born_sum_acc = np.zeros(Nx, dtype=np.float64)
 
     n_acc = 0
-    
+
+    # Time evolution loop
     for t in range(N_steps):
         psi1 = evolve_field(psi1, x1, dt, dx, c, D_psi, omega, gamma,
                            emit_amp, sigma_emit, x_min, Nx)
@@ -282,19 +285,20 @@ def simulate_solo(x_init, N_steps, dt, dx, c, D_psi, omega, gamma,
     Simulate the dynamics of a single particle interacting
     only with its own pilot-wave field.
 
-    This function is used to generate 'ghost trajectories'
-    serving as an uncorrelated reference for pair statistics.
-
-    The comparison between:
-    • real two-particle distances
-    • ghost (independent) distances
+    This function serves as a control experiment to verify
+    the dynamical convergence toward the Born rule
+    
+    I generates 'ghost trajectories' serving as 
+    an uncorrelated reference for pair statistics.
+    No interaction or coupling is present.
     """
 
 
     psi = np.zeros(Nx, dtype=np.complex128)
     x = x_init
     traj = np.zeros(N_steps)
-    
+                   
+    # Field and density accumulation after thermalization
     psi_accumulated = np.zeros(Nx, dtype=np.complex128)
     born_accumulated = np.zeros(Nx, dtype=np.float64)
     n_acc = 0
@@ -341,10 +345,14 @@ Defined as:
 
 with r = |x₁ − x₂|.
 
+The denominator is obtained from "ghost" trajectories,
+i.e. two independent single-particle simulations.
+
 For fermions:
 -------------
 • g(0) → 0   (Pauli exclusion)
 • g(r) shows a correlation hole at short distances
+• Joint configurations near x₁ = x₂ are suppressed
 """
 
 def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins=100):
@@ -373,12 +381,18 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
     Individual trajectories do not exhibit explicit exclusion.
     But The Pauli exclusion principle statistically emerges after
     ensemble averaging.
+
+    Each worker produces:
+    • One interacting (real) trajectory pair
+    • Two independent (ghost) trajectories
+    • Time-averaged fields and densities
+    • Pairwise distance statistics
     """
   
     np.random.seed(seed)
     
     if side == "rand":
-        # Tirage aléatoire : 50% normal, 50% inversé
+        # Random left/right assignment (50% inversion)
         if np.random.rand() < 0.5:
             area_p1 = (-15.0, -5.0)  # P1 gauche
             area_p2 = (5.0, 15.0)    # P2 droite
@@ -386,41 +400,41 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
             area_p1 = (5.0, 15.0)    # P1 droite
             area_p2 = (-15.0, -5.0)  # P2 gauche
     else:
-        # Utilise les zones globales
+        # Uses globally defined starting regions
         area_p1 = start_area_p1
         area_p2 = start_area_p2
     
     x1_init = np.random.uniform(area_p1[0], area_p1[1])
     x2_init = np.random.uniform(area_p2[0], area_p2[1])
     
-    # 1. INTERACTION (avec accumulation des champs)
+    # 1. INTERACTION 
     t1, t2, psi1_acc, psi2_acc, psi_sum_acc, born1_acc, born2_acc, born_sum_acc = simulate_interaction(
         x1_init, x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, coupling_code, CFG.thermalization
     )
     
-    # 2. SOLO P1 (avec accumulation)
+    # 2. SOLO P1 
     ts1, phi1_acc, born1_accumulated = simulate_solo(
         x1_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
     
-    # 3. SOLO P2 (avec accumulation)
+    # 3. SOLO P2
     ts2, phi2_acc, born2_accumulated = simulate_solo(
         x2_init, CFG.N_steps, CFG.dt, CFG.dx, CFG.c, CFG.D_psi, CFG.omega, CFG.gamma,
         CFG.emit_amp, CFG.sigma_emit_scaled, CFG.alpha, CFG.D_x, CFG.epsilon,
         CFG.x_min, CFG.x_max, CFG.Nx, CFG.thermalization
     )
     
-    # Analyse post-thermalisation
+    # Post-thermalization Analyse
     t1_post = t1[CFG.thermalization:]
     t2_post = t2[CFG.thermalization:]
     ts1_post = ts1[CFG.thermalization:]
     ts2_post = ts2[CFG.thermalization:]
     
-    # Histogrammes des positions
+    # Position for Histograms
     hist_p1_real, _ = np.histogram(t1_post, bins=len(x_space), range=(CFG.x_min, CFG.x_max))
     hist_p2_real, _ = np.histogram(t2_post, bins=len(x_space), range=(CFG.x_min, CFG.x_max))
     
@@ -428,8 +442,8 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
     d_real = np.abs(t1_post - t2_post)
     d_ghost = np.abs(ts1_post - ts2_post)
     
-    # Pour heatmap
-    positions_p1 = t1_post[::1]  # Sous-échantillonnage pour heatmap
+    # Position for Heatmap
+    positions_p1 = t1_post[::1]  # Subsampling possible
     positions_p2 = t2_post[::1]
     
     return {
@@ -452,14 +466,14 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
     }
 
 # ===============================
-# SIMULATION PRINCIPALE
+# MAIN SIMULATION
 # ===============================
 
 def run_pauli_simulation():
     n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
     
     print("="*70)
-    print("PAULI EXCLUSION - VERSION QUANTITATIVE v4")
+    print("PAULI EXCLUSION — EMERGENT DYNAMICS")
     print("="*70)
     print(f"Configuration :")
     print(f"  - Cœurs CPU : {n_cores}/{mp.cpu_count()}")
