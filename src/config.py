@@ -53,7 +53,11 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
 
     
     # --- Initial configuration of particle positions --- 
-    SIDE = "norm"                     # "norm" = normal, "rand" = random, or inverted
+    SIDE = "norm"                     
+    # "norm" = Particle 1 on the left, Particle 2 on the right
+    # "rand" = Randomized left/right assignment                   
+    # any other value : inverted configuration
+    
     if SIDE == "norm":
         start_area_p1: float = (-15.0, -5.0)   # Particle 1 starts on the left
         start_area_p2: float = (5.0, 15.0)     # Particle 2 starts on the right
@@ -64,10 +68,13 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
         start_area_p1: float = (5.0, 15.0)     # Particle 1 starts on the right
         start_area_p2: float = (-15.0, -5.0)   # Particle 2 starts on the left 
 
+    
     # --- Coupling ---
-    # "sum" →  |ψ|+|ψ| but fermionic behavior via effective repulsion
-    # "diff" → |ψ|-|ψ| but bosonic behavior via effective attraction
     coupling_type = "sum"
+    # "sum"  : ψ_guide = ψ₁ + ψ₂
+    #          Leads to effective repulsion and fermion-like correlations
+    # "diff" : ψ_guide = ψ₁ − ψ₂
+    #          Leads to effective attraction and boson-like correlations
 
 class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
