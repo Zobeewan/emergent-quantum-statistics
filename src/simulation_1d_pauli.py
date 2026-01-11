@@ -12,42 +12,46 @@ Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ==========================================
 Emergence of Pauli Exclusion Principle from Local Dynamics. 
 
-This simulation investigates the emergence of fermionic behavior
-(Pauli exclusion) from a stochastic field–particle dynamics model.
+This simulation investigates whether fermionic-like exclusion effects
+can emerge dynamically from a purely local pilot-wave model, without
+imposing antisymmetry, exchange rules, or quantum statistics by hand.
 
-The model extends a previously validated framework showing
-the emergence of the Born rule (ρ ≈ |ψ|²) for single particles,
-and now focuses on two-particle correlations.
+The model extends a previously validated single-particle framework
+demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
+Here, the focus is placed on two-particle correlations.
 
-Physical Principle:
--------------------
-Each particle generates its own complex guiding field ψ₁(x,t), ψ₂(x,t),
-while their dynamics is governed by a combined effective field.
+Physical Model
+--------------
+Each particle continuously emits and interacts with its own complex
+guiding field ψ₁(x,t), ψ₂(x,t). Particle dynamics is governed by the
+phase gradient of an effective guiding field constructed from these
+individual fields.
 
-• No antisymmetrization of trajectories is imposed
-• No exclusion rule is hard-coded
-• No fermionic statistics are assumed
+Key assumptions:
+• No antisymmetrization of trajectories
+• No explicit exclusion principle
+• No fermionic statistics imposed
 
-Instead, Pauli exclusion emerges dynamically as a statistical property
-of the coupled field–particle system, through destructive interference
-in configuration space.
-
+Only local field–particle coupling and stochastic diffusion are included.
 Symmetric or antisymmetric coupling is enforced by local dynamics.
 
 Key Result:
 -----------
-• Pair correlation functions g(r → 0) < 1
-• Shape of the correlation hole (Fermi hole)
-• The joined positions heatmap show a forbidden diagonal for x1 = x2
-• The distinct prediction in the joined positions come from the fermion indistinguishability nature (Symmetry properties)
-• Single particles statistical distribution ρ(x) still dynamically conforms to the shape of the spread wave packet |ψ|².
-• Both particles statistical distribution ρ(x) dynamically conforms to the shape of a symmetric coupling of fields (boson's coupling).
+Despite the absence of any imposed exclusion rule, ensemble-averaged
+statistics reveal:
 
-Pauli exclusion seem to emerges from local field dynamics acting as a repulsive force, 
-validating the pilot-wave mechanism as a viable dynamical origin for Fermi-Dirac statistics. 
+• A depletion of the pair correlation function at short distances:
+  g(r → 0) < 1
+• A correlation hole analogous to the Fermi hole
+• A suppression of joint configurations along x₁ = x₂
+  (The distinct prediction in the joined positions come from the fermion indistinguishability nature (Symmetry properties)
+• Single particles statistical distribution ρ(x) dynamically conforms to the shape of the spread wave packet |ψ|².
 
+These results suggest that Pauli-like exclusion may emerge as a consequence 
+of local pilot-wave dynamics, rather than as a fundamental postulate.
 
-Author : Revoire Christian (Independent Researcher)
+Author : Revoire Christian 
+Affiliation : Independent Researcher
 Date   : Janvier 2026
 License: MIT
 """
