@@ -71,21 +71,6 @@ Parameters are loaded from config.py.
 To change physics or simulation settings, edit 'src/config.py' 
 """
 
-# --- Initial configuration of particle positions --- 
-#CFG.SIDE = "norm"             # Uncomment this line to directly modify the starting position here.
-
-# "norm" = Particle 1 on the left, Particle 2 on the right
-# "rand" = Randomized left/right assignment                   
-# any other value : inverted configuration
-
-# --- Coupling ---
-#CFG.coupling_type = "sum"     # Uncomment this line to directly modify the coupling here.
-
-# "sum"  : ψ_guide = ψ₁ + ψ₂
-#          Leads to effective repulsion and fermion-like correlations
-# "diff" : ψ_guide = ψ₁ − ψ₂
-#          Leads to effective attraction and boson-like correlations
-
 # ===============================
 # PHYSICAL CORE (Numba)
 # ===============================
