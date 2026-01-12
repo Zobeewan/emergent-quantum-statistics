@@ -956,7 +956,7 @@ def plot_results_page1(data, theory, metrics):
     ax2.set_title(f'Particle 2 (corr_Born={metrics["corr_p2_born"]:.4f}, L¹={metrics["error_L1_p2_born"]:.5f})', fontweight='bold', fontsize=11)
     
     # ========================================
-    # 3. RESIDUES P1
+    # 3. RESIDUALS P1
     # ========================================
     ax3 = fig.add_subplot(gs[1, 0])
     res_born = data['rho_p1_obs'] - data['born_p1']
@@ -968,11 +968,11 @@ def plot_results_page1(data, theory, metrics):
     ax3.legend(fontsize=9)
     ax3.grid(alpha=0.3)
     ax3.set_xlabel('x Position')
-    ax3.set_ylabel('Residues')
-    ax3.set_title('Residues P1', fontweight='bold', fontsize=11)
+    ax3.set_ylabel('Residuals')
+    ax3.set_title('Residuals P1', fontweight='bold', fontsize=11)
     
     # ========================================
-    # 4. RESIDUES P2
+    # 4. RESIDUALS P2
     # ========================================
     ax4 = fig.add_subplot(gs[1, 1])
     res_born_p2 = data['rho_p2_obs'] - data['born_p2']
@@ -984,8 +984,8 @@ def plot_results_page1(data, theory, metrics):
     ax4.legend(fontsize=9)
     ax4.grid(alpha=0.3)
     ax4.set_xlabel('x Position')
-    ax4.set_ylabel('Residues')
-    ax4.set_title('Residues P2', fontweight='bold', fontsize=11)
+    ax4.set_ylabel('Residuals')
+    ax4.set_title('Residuals P2', fontweight='bold', fontsize=11)
     
     # ========================================
     # 5. TOTAL DENSITY 
@@ -1057,7 +1057,7 @@ def plot_results_page2(data, theory, metrics):
     ax2 = fig.add_subplot(gs[0, 1])
     ax2.plot(r_vals, metrics['hist_ghost'], 'gray', lw=2, alpha=0.6, label='Ghosts')
     ax2.fill_between(r_vals, metrics['hist_ghost'], alpha=0.3, color='gray')
-    ax2.plot(r_vals, metrics['hist_real'], 'r-', lw=2.5, label='Réel')
+    ax2.plot(r_vals, metrics['hist_real'], 'r-', lw=2.5, label='Real')
     ax2.fill_between(r_vals, metrics['hist_real'], alpha=0.2, color='red')
     ax2.set_xlabel('Distance |x₁ - x₂|', fontsize=11)
     ax2.set_ylabel('Probability density', fontsize=11)
