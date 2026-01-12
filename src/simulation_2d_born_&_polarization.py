@@ -286,16 +286,16 @@ def worker_particle_2d(seed, particle_id, x_space, y_space, V_pot):
 
     # Run single-particle simulation
     pos_x, pos_y, psi_acc, psi2_acc = simulate_particle_2d(
-        x_init, y_init, N_steps, thermalization, SUBSAMPLE,
-        dt, dx, dy, omega, gamma, D_psi, emit_amp, sigma_emit,
-        alpha, D_part, epsilon, x_min, x_max, y_min, y_max,
-        Nx, Ny, V_pot
+        x_init, y_init, CFG.N_steps, CFG.thermalization, CFG.SUBSAMPLE,
+        CFG.dt, CFG.dx, CFG.dy, CFG.omega, CFG.gamma, CFG.D_psi, CFG.emit_amp, CFG.sigma_emit_scaled,
+        CFG.alpha, CFG.D_part, CFG.epsilon, CFG.x_min, CFG.x_max, CFG.y_min, CFG.y_max,
+        CFG.Nx, CFG.Ny, V_pot
     )
 
     # 2D histogram of visited positions
     hist, _, _ = np.histogram2d(pos_x, pos_y,
                                 bins=[len(x_space), len(y_space)],
-                                range=[[x_min, x_max], [y_min, y_max]])
+                                range=[[CFG.x_min, CFG.x_max], [CFG.y_min, CFG.y_max]])
 
     # Save a few trajectories
     save_traj = (particle_id < 5)  # keep first 5 particle trajectories
@@ -326,49 +326,49 @@ def run_born_simulation_2d():
     and returns processed quantities ready for analysis and plotting.
     """
     # Detect number of CPU cores to use
-    n_cores = N_CORES if N_CORES > 0 else max(1, mp.cpu_count() + N_CORES)
+    n_cores = CFG.N_CORES if CFG.N_CORES > 0 else max(1, mp.cpu_count() + CFG.N_CORES)
 
     # Spatial grids
-    x_space = np.linspace(x_min, x_max, Nx)
-    y_space = np.linspace(y_min, y_max, Ny)
+    x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
+    y_space = np.linspace(CFG.y_min, CFG.y_max, CFG.Ny)
     X, Y = np.meshgrid(x_space, y_space, indexing='ij')
 
     # Potentials (optional)
-    V_harm = 0.5 * V0 * (X**2 + Y**2) if use_potential_h else np.zeros((Nx, Ny))
+    V_harm = 0.5 * V0 * (X**2 + Y**2) if use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
     V_coulomb = (-V0_coulomb / np.sqrt(X**2 + Y**2 + softening**2)
-                 if use_potential_c else np.zeros((Nx, Ny)))
+                 if use_potential_c else np.zeros((CFG.Nx, CFG.Ny)))
     V_pot = V_harm + V_coulomb
 
     # Memory estimate
-    n_samples_per_particle = (N_steps - thermalization) // SUBSAMPLE
+    n_samples_per_particle = (CFG.N_steps - CFG.thermalization) // CFG.SUBSAMPLE
     memory_per_particle_mb = (
         (n_samples_per_particle * 2 * 4 +  # positions (float32)
-         Nx * Ny * 8 +  # psi_acc (complex64)
-         Nx * Ny * 4)   # psi2_acc (float32)
+         CFG.Nx * CFG.Ny * 8 +  # psi_acc (complex64)
+         CFG.Nx * CFG.Ny * 4)   # psi2_acc (float32)
         / (1024**2)
     )
-    total_memory_mb = memory_per_particle_mb * N_runs / n_cores
+    total_memory_mb = memory_per_particle_mb * CFG.N_runs / n_cores
 
     # CFL-like stability metric
-    cfl = omega * dt / dx**2
+    cfl = CFG.omega * CFG.dt / CFG.dx**2
 
     print("="*70)
     print("SIMULATION 2D BORN RULE")
     print("="*70)
     print(f"Configuration :")
-    print(f"  - Grid : {Nx}×{Ny} ({Nx*Ny:,} points)")
+    print(f"  - Grid : {CFG.Nx}×{CFG.Ny} ({CFG.Nx*CFG.Ny:,} points)")
     print(f"  - CPU cores : {n_cores}/{mp.cpu_count()}")
-    print(f"  - Particles : {N_runs}")
-    print(f"  - Steps/particle : {N_steps:,}")
-    print(f"  - Subsampling : 1/{SUBSAMPLE}")
+    print(f"  - Particles : {CFG.N_runs}")
+    print(f"  - Steps/particle : {CFG.N_steps:,}")
+    print(f"  - Subsampling : 1/{CFG.SUBSAMPLE}")
     print(f"  - Estimated memory : {total_memory_mb:.1f} MB")
     print(f"\nNumerical stability :")
     print(f"  - CFL = {cfl:.4f} (should be < 0.5)")
-    print(f"  - dx = {dx:.3f}, dy = {dy:.3f}, dt = {dt}")
+    print(f"  - dx = {CFG.dx:.3f}, dy = {CFG.dy:.3f}, dt = {CFG.dt}")
     print(f"\nPhysical params :")
-    print(f"  ω={omega}, γ={gamma}, D_ψ={D_psi}")
-    print(f"  α={alpha}, D_part={D_part} {'✓ ACTIVE' if D_part > 0 else '⚠️ INACTIVE'}")
-    print(f"  emit_amp={emit_amp}, σ={sigma_emit:.2f}")
+    print(f"  ω={CFG.omega}, γ={CFG.gamma}, D_ψ={CFG.D_psi}")
+    print(f"  α={CFG.alpha}, D_part={CFG.D_part} {'✓ ACTIVE' if CFG.D_part > 0 else '⚠️ INACTIVE'}")
+    print(f"  emit_amp={CFG.emit_amp}, σ={CFG.sigma_emit_scaled :.2f}")
     print(f"\nPotentials :")
     print(f"  Harmonic : {'YES' if use_potential_h else 'NO'}")
     print(f"  Coulomb  : {'YES' if use_potential_c else 'NO'}")
@@ -389,19 +389,19 @@ def run_born_simulation_2d():
             x_space=x_space,
             y_space=y_space,
             V_pot=V_pot
-        ) for p in tqdm(range(N_runs), desc="Particles")
+        ) for p in tqdm(range(CFG.N_runs), desc="Particles")
     )
 
     elapsed = time.time() - start_time
     print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
-    print(f"  Speed : {N_runs * N_steps / elapsed / 1e6:.2f}M steps/sec")
+    print(f"  Speed : {CFG.N_runs * CFG.N_steps / elapsed / 1e6:.2f}M steps/sec")
 
     # Aggregate ensemble statistics
     print("\n📊 Aggregating statistics...")
 
-    rho = np.zeros((Nx, Ny))
-    psi_acc = np.zeros((Nx, Ny), dtype=np.complex128)
-    psi2_acc = np.zeros((Nx, Ny))
+    rho = np.zeros((CFG.Nx, CFG.Ny))
+    psi_acc = np.zeros((CFG.Nx, CFG.Ny), dtype=np.complex128)
+    psi2_acc = np.zeros((CFG.Nx, CFG.Ny))
     total_samples = 0
     trajectories = []
 
@@ -574,13 +574,13 @@ def plot_results_2d_improved(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, c
     ax6.grid(alpha=0.3)
 
     # Super title
-    fig.suptitle(f"Emergence of Born's rule 2D (N={N_runs}, Steps={N_steps})\n" + \
+    fig.suptitle(f"Emergence of Born's rule 2D (N={CFG.N_runs}, Steps={CFG.N_steps})\n" + \
                  f"ρ vs |ψ|² corr: {corr:.4f} | L¹: {error_L1:.5f}", fontsize=15, fontweight='bold', y=0.98)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     # Save figure
-    base = f"Born_2D_N{N_runs}"
+    base = f"Born_2D_N{CFG.N_runs}"
     i = 1
     while os.path.exists(f"{base}_V{i}.png"):
         i += 1
