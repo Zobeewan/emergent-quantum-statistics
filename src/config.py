@@ -11,9 +11,6 @@ class Base_Config:                # (Opti for Born 1D)
     x_min: float = -120.0         # Spatial extent (x) (left) 
     x_max: float = 120.0          # Spatial extent (x) (right)
     
-    y_min: float = -120.0         # Spatial extent (y) (left), Only use on 2D simulation
-    y_max: float = 120.0          # Spatial extent (y) (right), Only use on 2D simulation
-    
     dt: float = 0.01              # Time step
     
     # --- Simulation Control ---
@@ -41,9 +38,7 @@ class Base_Config:                # (Opti for Born 1D)
     def __init__(self):
         # Derived parameters
         self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
-        self.y = np.linspace(self.y_min, self.y_max, self.Ny)
         self.dx = self.x[1] - self.x[0]                              # Space step
-        self.dy = self.y[1] - self.y[0]
         # Adjust source width relative to grid
         self.sigma_emit_scaled = self.dx * 3.0
 
@@ -89,8 +84,21 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
 # ===============================
 class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
-    x_min: float = -125.0          # Spatial extent (x) (left) 
-    x_max: float = 125.0           # Spatial extent (x) (right)
+    Nx: int = 300                 # Grid size (x)
+    Ny: int = 300                 # Grid size (y), Only use on 2D simulation
+    
+    x_min: float = -100.0          # Spatial extent (x) (left) 
+    x_max: float = 100.0           # Spatial extent (x) (right)
+    
+    y_min: float = -100.0         # Spatial extent (y) (left)
+    y_max: float = 100.0          # Spatial extent (y) (right)
     
     # --- Simulation Control ---
     N_runs: int = 600              # Number of independent simulated particles
+
+    def __init__(self):
+        # Derived parameters
+        self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
+        self.y = np.linspace(self.y_min, self.y_max, self.Ny)
+        self.dx = self.x[1] - self.x[0]                              # Space step
+        self.dy = self.y[1] - self.y[0]
