@@ -95,10 +95,16 @@ class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Simulation Control ---
     N_runs: int = 600              # Number of independent simulated particles
 
-    # ---  Potentials Control ---
+    
+    # ---  Potentials Control --- 
+    # (disabled by default)
     V0 = 0.1                       # Harmonic Potential
     V0_coulomb = 15.0              # Coulomb Potential
     softening = 1.0
 
-
-
+    # Harmonic Potentials 
+    use_potential_h = False    
+    
+    # Coulombian Potentials
+    use_potential_c = False  
+    
