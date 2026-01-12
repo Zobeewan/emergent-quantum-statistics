@@ -719,7 +719,7 @@ def compare_schrodinger(x_space, sigma_target):
         else:    
             print(f"\nSCHRÖDINGER COMPARISON\n")
             print(f"Convergence in {best_step} QM steps")
-            print(f"Temporal ratio: τ_hydro/τ_QM = {N_steps/best_step:.2f}")
+            print(f"Temporal ratio: τ_hydro/τ_QM = {CFG.N_steps/best_step:.2f}")
             break
         
         steps += 1
