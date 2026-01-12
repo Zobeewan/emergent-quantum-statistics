@@ -37,10 +37,10 @@ License: MIT
 # CONFIG IMPORT
 # ===============================
 try:
-    from src.config import Pauli_Config
+    from src.config import Born_2D_Config
 except ImportError:
-    from config import Pauli_Config
-CFG = Pauli_Config()
+    from config import Born_2D_Config
+CFG = Born_2D_Config()
 
 # The original script used several module-level names (Nx, Ny, dt, dx, ...)
 # which are expected to be provided by the imported config module. To
