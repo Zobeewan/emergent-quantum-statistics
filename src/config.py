@@ -1,5 +1,8 @@
 import numpy as np
 
+# ===============================
+# CONFIG GLOBAL
+# ===============================
 class Base_Config:                 # (Opti for Born 1D)
     # --- Space & Time ---
     Nx: int = 300                 # Grid size (x)
@@ -38,11 +41,15 @@ class Base_Config:                 # (Opti for Born 1D)
     def __init__(self):
         # Derived parameters
         self.x = np.linspace(self.x_min, self.x_max, self.Nx)        # Grid initialization
+        self.y = np.linspace(self.y_min, self.y_max, self.Ny)
         self.dx = self.x[1] - self.x[0]                              # Space step
+        self.dy = self.y[1] - self.y[0]
         # Adjust source width relative to grid
         self.sigma_emit_scaled = self.dx * 3.0
 
-#
+# ===============================
+# CONFIG PAULI 1D
+# ===============================
 class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     # --- Space & Time ---
     x_min: float = -150.0          # Spatial extent (x) (left) 
@@ -76,6 +83,10 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     # "diff" : ψ_guide = ψ₁ − ψ₂
     #          Leads to effective attraction and boson-like correlations
 
+
+# ===============================
+# CONFIG BRON 2D
+# ===============================
 class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
     x_min: float = -125.0          # Spatial extent (x) (left) 
@@ -83,3 +94,8 @@ class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     
     # --- Simulation Control ---
     N_runs: int = 600            # Number of independent simulated particles
+
+
+
+
+
