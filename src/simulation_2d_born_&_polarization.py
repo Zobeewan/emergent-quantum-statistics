@@ -48,12 +48,6 @@ CFG = Born_2D_Config()
 # variable names as in the original code and does not change logic.
 
 
-# Harmonic Potentials (disabled by default)
-#CFG.use_potential_h = False      # Uncomment this line to directly change potentiel here
-
-# Coulombian Potentials (disabled by default)
-#CFG.use_potential_c = False      # Uncomment this line to directly change potentiel here
-
 # ===============================
 # NUMERICAL CORE (NUMBA)
 # ===============================
@@ -61,7 +55,7 @@ CFG = Born_2D_Config()
 @njit(parallel=True, fastmath=True)
 def evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p, 
                     dt, dx, dy, omega, gamma, d_psi, 
-                    emit_amp, sigma, x_min, y_min, Nx, Ny, V_pot):
+                    emit_amp, sigma, x_min, y_min, Nx, Ny):
     """
     Advance the 2D pilot-wave field by one time-step using a preallocated
     Laplacian buffer. The routine is parallelized over the i-index.
@@ -70,7 +64,6 @@ def evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p,
     - Discrete Laplacian (finite differences)
     - Diffusive + dispersive update
     - Linear damping
-    - Optional local potential term (− i V ψ)
     - Local Gaussian source centered on the particle position
 
     All temporary buffers are provided to minimize memory allocations
@@ -84,14 +77,12 @@ def evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p,
                 / dx**2
             )
 
-    # 2) Field update including optional potential
+    # 2) Field update 
     for i in prange(1, Nx-1):
         for j in range(1, Ny-1):
-            V_local = V_pot[i, j]
             psi_new[i,j] = psi[i,j] + dt * (
                 (d_psi + 1j*omega) * lap_buffer[i,j] 
-                - gamma * psi[i,j] 
-                - 1j * V_local * psi[i,j]
+                - gamma * psi[i,j]
             )
 
     # 3) Mobile localized source 
@@ -165,7 +156,7 @@ def get_guidance_2d(psi, x_p, y_p, x_min, y_min, dx, dy, Nx, Ny, epsilon):
 def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
                          dt, dx, dy, omega, gamma, d_psi, emit_amp, sigma,
                          alpha, D_part, epsilon, x_min, x_max, y_min, y_max, 
-                         Nx, Ny, V_pot):
+                         Nx, Ny):
     """
     Simulate a single 2D particle coupled to its own pilot-wave field.
 
@@ -198,7 +189,7 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
         # Advance the field by one time-step
         psi_new = evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p,
                                   dt, dx, dy, omega, gamma, d_psi,
-                                  emit_amp, sigma, x_min, y_min, Nx, Ny, V_pot)
+                                  emit_amp, sigma, x_min, y_min, Nx, Ny)
         psi[:, :] = psi_new[:, :]
 
         # Soft normalization (stability)
@@ -270,7 +261,7 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
 # PARALLEL WORKER
 # ===============================
 
-def worker_particle_2d(seed, particle_id, x_space, y_space, V_pot):
+def worker_particle_2d(seed, particle_id, x_space, y_space):
     """
     Worker executed on a separate CPU core. Simulates a single 2D particle
     and returns light-weight statistics (2D histogram, accumulated fields,
@@ -289,7 +280,7 @@ def worker_particle_2d(seed, particle_id, x_space, y_space, V_pot):
         x_init, y_init, CFG.N_steps, CFG.thermalization, CFG.SUBSAMPLE,
         CFG.dt, CFG.dx, CFG.dy, CFG.omega, CFG.gamma, CFG.D_psi, CFG.emit_amp, CFG.sigma_emit_scaled,
         CFG.alpha, CFG.D_part, CFG.epsilon, CFG.x_min, CFG.x_max, CFG.y_min, CFG.y_max,
-        CFG.Nx, CFG.Ny, V_pot
+        CFG.Nx, CFG.Ny
     )
 
     # 2D histogram of visited positions
@@ -321,7 +312,7 @@ def run_born_simulation_2d():
     """
     Orchestrate an ensemble of independent 2D single-particle simulations.
 
-    The function builds the spatial grids, optional potentials, launches
+    The function builds the spatial grids,  launches
     joblib workers, aggregates ensemble-averaged fields and histograms,
     and returns processed quantities ready for analysis and plotting.
     """
@@ -332,12 +323,6 @@ def run_born_simulation_2d():
     x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
     y_space = np.linspace(CFG.y_min, CFG.y_max, CFG.Ny)
     X, Y = np.meshgrid(x_space, y_space, indexing='ij')
-
-    # Potentials (optional)
-    V_harm = 0.5 * CFG.V0 * (X**2 + Y**2) if CFG.use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
-    V_coulomb = (-CFG.V0_coulomb / np.sqrt(X**2 + Y**2 + CFG.softening**2)
-                 if CFG.use_potential_c else np.zeros((CFG.Nx, CFG.Ny)))
-    V_pot = V_harm + V_coulomb
 
     # Memory estimate
     n_samples_per_particle = (CFG.N_steps - CFG.thermalization) // CFG.SUBSAMPLE
@@ -369,9 +354,6 @@ def run_born_simulation_2d():
     print(f"  ω={CFG.omega}, γ={CFG.gamma}, D_ψ={CFG.D_psi}")
     print(f"  α={CFG.alpha}, D_part={CFG.D_part} {'✓ ACTIVE' if CFG.D_part > 0 else '⚠️ INACTIVE'}")
     print(f"  emit_amp={CFG.emit_amp}, σ={CFG.sigma_emit_scaled :.2f}")
-    print(f"\nPotentials :")
-    print(f"  Harmonic : {'YES' if CFG.use_potential_h else 'NO'}")
-    print(f"  Coulomb  : {'YES' if CFG.use_potential_c else 'NO'}")
     print("="*70)
 
     if cfl >= 0.5:
@@ -387,8 +369,7 @@ def run_born_simulation_2d():
             seed=42 + p*1000,
             particle_id=p,
             x_space=x_space,
-            y_space=y_space,
-            V_pot=V_pot
+            y_space=y_space
         ) for p in tqdm(range(CFG.N_runs), desc="Particles")
     )
 
