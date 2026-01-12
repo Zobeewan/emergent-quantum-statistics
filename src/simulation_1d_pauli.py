@@ -519,7 +519,7 @@ def run_pauli_simulation():
     print("\n🚀 Starting parallel simulation...\n")
     
     results = Parallel(n_jobs=n_cores, backend='loky', verbose=0)(
-        delayed(worker_particle_optimized)(
+        delayed(worker_particle)(
             seed=42 + p*1000,
             particle_id=p,
             x_space=x_space,
