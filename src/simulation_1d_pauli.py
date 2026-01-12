@@ -340,9 +340,10 @@ For fermions:
 • Joint configurations near x₁ = x₂ are suppressed
 """
 
-def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max, bins=100):
+def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max):
     L = x_max - x_min
-    bin_edges = np.linspace(0, L, bins+1)
+    bins = 150
+    bin_edges = np.linspace(0, L/2, bins+1)
     r_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     
     hist_real, _ = np.histogram(distances_real, bins=bin_edges, density=True)
@@ -754,11 +755,11 @@ def analyze_results(data, theory):
     corr_p1_born = np.corrcoef(data['rho_p1_obs'], data['born_p1'])[0, 1]
     error_L1_p1_born = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - data['born_p1']), x_space)
     
-    # vs Theorical fermions
+    # vs Theoretical fermions
     corr_p1_fermion = np.corrcoef(data['rho_p1_obs'], theory['rho1_fermion'])[0, 1]
     error_L1_p1_fermion = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_fermion']), x_space)
     
-    # vs Theorical bosons
+    # vs Theoretical bosons
     corr_p1_boson = np.corrcoef(data['rho_p1_obs'], theory['rho1_boson'])[0, 1]
     error_L1_p1_boson = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_boson']), x_space)
     
@@ -790,8 +791,7 @@ def analyze_results(data, theory):
     # 4. g(r) FONCTION
     # ========================================
     r_vals, g_r, hist_real, hist_ghost = compute_pair_correlation(
-        data['dist_real'], data['dist_ghost'], CFG.x_min, CFG.x_max, bins=80
-    )
+        data['dist_real'], data['dist_ghost'], CFG.x_min, CFG.x_max)
     g_0 = g_r[np.argmin(np.abs(r_vals - 1.0))]
     
     # Exclusion Factor
@@ -831,18 +831,18 @@ def analyze_results(data, theory):
     
     print("\n1. PARTICLE 1:")
     print(f"   vs |ψ₁|² observed: corr={corr_p1_born:.4f}, L¹={error_L1_p1_born:.5f}")
-    print(f"   vs Theorical fermion: corr={corr_p1_fermion:.4f}, L¹={error_L1_p1_fermion:.5f}")
-    print(f"   vs Theorical boson: corr={corr_p1_boson:.4f}, L¹={error_L1_p1_boson:.5f}")
+    print(f"   vs Theoretical fermion: corr={corr_p1_fermion:.4f}, L¹={error_L1_p1_fermion:.5f}")
+    print(f"   vs Theoretical boson: corr={corr_p1_boson:.4f}, L¹={error_L1_p1_boson:.5f}")
     
     print("\n2. PARTICULE 2:")
     print(f"   vs |ψ₂|² observed: corr={corr_p2_born:.4f}, L¹={error_L1_p2_born:.5f}")
-    print(f"   vs Theorical fermion: corr={corr_p2_fermion:.4f}, L¹={error_L1_p2_fermion:.5f}")
-    print(f"   vs Theoricale boson: corr={corr_p2_boson:.4f}, L¹={error_L1_p2_boson:.5f}")
+    print(f"   vs Theoretical fermion: corr={corr_p2_fermion:.4f}, L¹={error_L1_p2_fermion:.5f}")
+    print(f"   vs Theoretical boson: corr={corr_p2_boson:.4f}, L¹={error_L1_p2_boson:.5f}")
     
     print("\n3. TOTAL DENSITY:")
     print(f"   vs |ψ₁+ψ₂|² observed: corr={corr_total_born:.4f}, L¹={error_L1_total_born:.5f}")
-    print(f"   vs Theorical fermion: corr={corr_total_fermion:.4f}, L¹={error_L1_total_fermion:.5f}")
-    print(f"   vs Theorical boson  : corr={corr_total_boson:.4f}, L¹={error_L1_total_boson:.5f}")
+    print(f"   vs Theoretical fermion: corr={corr_total_fermion:.4f}, L¹={error_L1_total_fermion:.5f}")
+    print(f"   vs Theoretical boson  : corr={corr_total_boson:.4f}, L¹={error_L1_total_boson:.5f}")
     
     print("\n4. PAIR CORRELATIONS:")
     print(f"   g(r≈1): {g_0:.3f}")
@@ -918,16 +918,16 @@ def plot_results_page1(data, theory, metrics):
     # ========================================
     ax1 = fig.add_subplot(gs[0, 0])
     mean_pos_p1 = np.average(x, weights=data['rho_p1_obs'])
-    ax1.plot(x, data['rho_p1_obs'], 'b-', lw=2.5, label='ρ₁ observée')
+    ax1.plot(x, data['rho_p1_obs'], 'b-', lw=2.5, label='ρ₁ observed')
     ax1.plot(x, data['born_p1'], 'k--', lw=2, alpha=0.8, label='|ψ₁|² (Born)')
-    ax1.plot(x, theory['rho1_fermion'], 'r:', lw=2, label='Théorie fermion')
-    ax1.plot(x+mean_pos_p1, theory['rho1_boson'], 'g:', lw=1.5, alpha=0.6, label='Théorie boson')
+    ax1.plot(x, theory['rho1_fermion'], 'r:', lw=2, label='Theoretical fermion')
+    ax1.plot(x+mean_pos_p1, theory['rho1_boson'], 'g:', lw=1.5, alpha=0.6, label='Theoretical boson')
     ax1.plot(x+mean_pos_p1, metrics['rho_qm_p1'], 'm:', lw=1.5, alpha=0.6, label='Schrödinger')
     ax1.legend(fontsize=9)
     ax1.grid(alpha=0.3)
-    ax1.set_xlabel('Position x')
-    ax1.set_ylabel('Densité')
-    ax1.set_title(f'Particule 1 (corr_Born={metrics["corr_p1_born"]:.4f}, L¹={metrics["error_L1_p1_born"]:.5f})', 
+    ax1.set_xlabel('x Position')
+    ax1.set_ylabel('Densitu')
+    ax1.set_title(f'Particle 1 (corr_Born={metrics["corr_p1_born"]:.4f}, L¹={metrics["error_L1_p1_born"]:.5f})', 
                  fontweight='bold', fontsize=11)
     
     # ========================================
@@ -935,16 +935,16 @@ def plot_results_page1(data, theory, metrics):
     # ========================================
     ax2 = fig.add_subplot(gs[0, 1])
     mean_pos_p2 = np.average(x, weights=data['rho_p2_obs'])
-    ax2.plot(x, data['rho_p2_obs'], 'b-', lw=2.5, label='ρ₂ observée')
+    ax2.plot(x, data['rho_p2_obs'], 'b-', lw=2.5, label='ρ₂ observed')
     ax2.plot(x, data['born_p2'], 'k--', lw=2, alpha=0.8, label='|ψ₂|² (Born)')
-    ax2.plot(x, theory['rho2_fermion'], 'r:', lw=2, label='Théorie fermion')
-    ax2.plot(x+mean_pos_p2, theory['rho2_boson'], 'g:', lw=1.5, alpha=0.6, label='Théorie boson')
+    ax2.plot(x, theory['rho2_fermion'], 'r:', lw=2, label='Theoretical fermion')
+    ax2.plot(x+mean_pos_p2, theory['rho2_boson'], 'g:', lw=1.5, alpha=0.6, label='Theoretical boson')
     ax2.plot(x+mean_pos_p2, metrics['rho_qm_p2'], 'm:', lw=1.5, alpha=0.6, label='Schrödinger')
     ax2.legend(fontsize=9)
     ax2.grid(alpha=0.3)
-    ax2.set_xlabel('Position x')
-    ax2.set_ylabel('Densité')
-    ax2.set_title(f'Particule 2 (corr_Born={metrics["corr_p2_born"]:.4f}, L¹={metrics["error_L1_p2_born"]:.5f})', fontweight='bold', fontsize=11)
+    ax2.set_xlabel('x Position')
+    ax2.set_ylabel('Density')
+    ax2.set_title(f'Particle 2 (corr_Born={metrics["corr_p2_born"]:.4f}, L¹={metrics["error_L1_p2_born"]:.5f})', fontweight='bold', fontsize=11)
     
     # ========================================
     # 3. RESIDUES P1
@@ -958,9 +958,9 @@ def plot_results_page1(data, theory, metrics):
     ax3.fill_between(x, 0, res_born, alpha=0.2, color='black')
     ax3.legend(fontsize=9)
     ax3.grid(alpha=0.3)
-    ax3.set_xlabel('Position x')
-    ax3.set_ylabel('Résidus')
-    ax3.set_title('Résidus P1', fontweight='bold', fontsize=11)
+    ax3.set_xlabel('x Position')
+    ax3.set_ylabel('Residues')
+    ax3.set_title('Residues P1', fontweight='bold', fontsize=11)
     
     # ========================================
     # 4. RESIDUES P2
@@ -974,27 +974,27 @@ def plot_results_page1(data, theory, metrics):
     ax4.fill_between(x, res_born_p2, alpha=0.2, color='black')
     ax4.legend(fontsize=9)
     ax4.grid(alpha=0.3)
-    ax4.set_xlabel('Position x')
-    ax4.set_ylabel('Résidus')
-    ax4.set_title('Résidus P2', fontweight='bold', fontsize=11)
+    ax4.set_xlabel('x Position')
+    ax4.set_ylabel('Residues')
+    ax4.set_title('Residues P2', fontweight='bold', fontsize=11)
     
     # ========================================
     # 5. TOTAL DENSITY 
     # ========================================
     ax5 = fig.add_subplot(gs[2, :])
-    ax5.plot(x, data['rho_total_obs'], 'b-', lw=2.5, label='ρ₁+ρ₂ observée')
+    ax5.plot(x, data['rho_total_obs'], 'b-', lw=2.5, label='ρ₁+ρ₂ observed')
     ax5.plot(x, data['born_sum'], 'k--', lw=2, alpha=0.8, label='|ψ₁+ψ₂|² (Born)')
-    ax5.plot(x, theory['rho_total_fermion'], 'r:', lw=2, label='Théorie fermion')
-    ax5.plot(x, theory['rho_total_boson'], 'g:', lw=1.5, alpha=0.6, label='Théorie boson')
+    ax5.plot(x, theory['rho_total_fermion'], 'r:', lw=2, label='Theoretical fermion')
+    ax5.plot(x, theory['rho_total_boson'], 'g:', lw=1.5, alpha=0.6, label='Theoretical boson')
     ax5.plot(x, metrics['rho_qm_total'], 'm:', lw=1.5, alpha=0.6, label='Schrödinger')
     ax5.legend(fontsize=10)
     ax5.grid(alpha=0.3)
-    ax5.set_xlabel('Position x', fontsize=11)
-    ax5.set_ylabel('Densité totale', fontsize=11)
-    ax5.set_title(f'Densité totale (corr_Born={metrics["corr_total_born"]:.4f}, L¹={metrics["error_L1_total_born"]:.5f})', 
+    ax5.set_xlabel('x Position', fontsize=11)
+    ax5.set_ylabel('Total Density', fontsize=11)
+    ax5.set_title(f'Total Density (corr_Born={metrics["corr_total_born"]:.4f}, L¹={metrics["error_L1_total_born"]:.5f})', 
                  fontweight='bold', fontsize=12)
     
-    plt.suptitle('Page 1 : Convergence Born et Comparaison Théories', 
+    plt.suptitle('Page 1: Born Convergence and Comparison with Theories', 
                 fontsize=14, fontweight='bold', y=0.995)
     
     base_name = f"Pauli_Exclusion_N{CFG.N_runs}_Page1"
@@ -1029,13 +1029,13 @@ def plot_results_page2(data, theory, metrics):
     # 1. g(r) FONCTION
     # ========================================
     ax1 = fig.add_subplot(gs[0, 0])
-    ax1.plot(r_vals, g_r, 'r-', linewidth=2.5, label='g(r) mesuré')
-    ax1.axhline(1, color='gray', linestyle='--', linewidth=1.5, label='Particules indépendantes')
+    ax1.plot(r_vals, g_r, 'r-', linewidth=2.5, label='g(r) mesured')
+    ax1.axhline(1, color='gray', linestyle='--', linewidth=1.5, label='Independent particles')
     ax1.fill_between(r_vals, g_r, 1, where=(g_r < 1), 
-                     facecolor='red', alpha=0.2, label='Trou de Fermi')
+                     facecolor='red', alpha=0.2, label='Fermi Hole')
     ax1.set_xlabel('Distance r', fontsize=11)
     ax1.set_ylabel('g(r)', fontsize=11)
-    ax1.set_title(f'Corrélation de paires (g(1)={metrics["g_0"]:.3f})', 
+    ax1.set_title(f'Pair correlation (g(1)={metrics["g_0"]:.3f})', 
                  fontweight='bold', fontsize=12)
     ax1.set_xlim(0, 40)
     ax1.set_ylim(0, 2)
@@ -1046,13 +1046,13 @@ def plot_results_page2(data, theory, metrics):
     # 2. DISTANCES DISTRIBUTION
     # ========================================
     ax2 = fig.add_subplot(gs[0, 1])
-    ax2.plot(r_vals, metrics['hist_ghost'], 'gray', lw=2, alpha=0.6, label='Fantômes')
+    ax2.plot(r_vals, metrics['hist_ghost'], 'gray', lw=2, alpha=0.6, label='Ghosts')
     ax2.fill_between(r_vals, metrics['hist_ghost'], alpha=0.3, color='gray')
     ax2.plot(r_vals, metrics['hist_real'], 'r-', lw=2.5, label='Réel')
     ax2.fill_between(r_vals, metrics['hist_real'], alpha=0.2, color='red')
     ax2.set_xlabel('Distance |x₁ - x₂|', fontsize=11)
-    ax2.set_ylabel('Densité de probabilité', fontsize=11)
-    ax2.set_title(f'Distribution distances (Excl: {metrics["exclusion_factor"]:.2f}x)', 
+    ax2.set_ylabel('Probability density', fontsize=11)
+    ax2.set_title(f'Distances distribution (Excl: {metrics["exclusion_factor"]:.2f}x)', 
                  fontweight='bold', fontsize=12)
     ax2.legend(fontsize=10)
     ax2.grid(alpha=0.3)
@@ -1070,11 +1070,11 @@ def plot_results_page2(data, theory, metrics):
     
     # Diagonale (positions identiques - interdit pour fermions)
     ax3.plot([CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max], 'cyan', linewidth=2.5, 
-             linestyle='--', label='x₁=x₂ (interdit)')
+             linestyle='--', label='x₁=x₂')
     
     ax3.set_xlabel('Position P1', fontsize=11)
     ax3.set_ylabel('Position P2', fontsize=11)
-    ax3.set_title('Heatmap positions jointes', fontweight='bold', fontsize=12)
+    ax3.set_title('Joined positions Heatmap', fontweight='bold', fontsize=12)
     ax3.legend(fontsize=10, loc='upper left')
     plt.colorbar(im, ax=ax3, label='Densité')
     
@@ -1093,11 +1093,11 @@ def plot_results_page2(data, theory, metrics):
     
     ax4.set_xlabel('Position P1', fontsize=11)
     ax4.set_ylabel('Position P2', fontsize=11)
-    ax4.set_title('Théorie fermions |ψ₋(x₁,x₂)|²', fontweight='bold', fontsize=12)
+    ax4.set_title('Theoretical fermion |ψ₋(x₁,x₂)|²', fontweight='bold', fontsize=12)
     ax4.legend(fontsize=10, loc='upper left')
-    plt.colorbar(im2, ax=ax4, label='Densité théorique')
+    plt.colorbar(im2, ax=ax4, label='Theoretical density')
     
-    plt.suptitle('Page 2 : Corrélations spatiales et Exclusion de Pauli', 
+    plt.suptitle('Page 2: Spatial Correlations and Pauli Exclusion', 
                 fontsize=14, fontweight='bold', y=0.995)
     
     base_name = f"Pauli_Exclusion_N{CFG.N_runs}_Page2"
