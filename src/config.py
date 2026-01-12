@@ -3,16 +3,16 @@ import numpy as np
 # ===============================
 # CONFIG GLOBAL
 # ===============================
-class Base_Config:                 # (Opti for Born 1D)
+class Base_Config:                # (Opti for Born 1D)
     # --- Space & Time ---
     Nx: int = 300                 # Grid size (x)
     Ny: int = 300                 # Grid size (y), Only use on 2D simulation
         
-    x_min: float = -120.0          # Spatial extent (x) (left) 
-    x_max: float = 120.0           # Spatial extent (x) (right)
+    x_min: float = -120.0         # Spatial extent (x) (left) 
+    x_max: float = 120.0          # Spatial extent (x) (right)
     
-    y_min: float = -120.0          # Spatial extent (y) (left), Only use on 2D simulation
-    y_max: float = 120.0           # Spatial extent (y) (right), Only use on 2D simulation
+    y_min: float = -120.0         # Spatial extent (y) (left), Only use on 2D simulation
+    y_max: float = 120.0          # Spatial extent (y) (right), Only use on 2D simulation
     
     dt: float = 0.01              # Time step
     
@@ -26,7 +26,7 @@ class Base_Config:                 # (Opti for Born 1D)
     # --- Wave Physics (Pilot Field) ---
     # Equation: ∂t ψ = (Dψ + iω)∇²ψ - γψ + Source
     c: float = 1.0                # Propagation speed (c = 1 by choice of units, ideally should match the discretization dx/dt)    
-    gamma: float = 0.045           # Dissipation (system memory)
+    gamma: float = 0.045          # Dissipation (system memory)
     D_psi: float = 0.9            # Spatial diffusion
     emit_amp: float = 0.57        # Source emission amplitude
     sigma_emit: float = 1.0       # Spatial width of the source (will be scaled by dx)
@@ -93,9 +93,12 @@ class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     x_max: float = 125.0           # Spatial extent (x) (right)
     
     # --- Simulation Control ---
-    N_runs: int = 600            # Number of independent simulated particles
+    N_runs: int = 600              # Number of independent simulated particles
 
-
+    # ---  Potentials Control ---
+    V0 = 0.1                       # Harmonic Potential
+    V0_coulomb = 15.0              # Coulomb Potential
+    softening = 1.0
 
 
 
