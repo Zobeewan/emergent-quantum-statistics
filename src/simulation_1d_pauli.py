@@ -340,26 +340,22 @@ For fermions:
 • Joint configurations near x₁ = x₂ are suppressed
 """
 
-def compute_pair_correlation(distances_real, distances_ghost, x_min, x_max):
-    L = x_max - x_min
-    bins = 150
-    bin_edges = np.linspace(0, L/2, bins+1)
-    r_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+def compute_pair_correlation(hist_real, hist_ghost, r_centers):
+    hist_real_norm = hist_real / (np.sum(hist_real) * (r_centers[1] - r_centers[0]))
+    hist_ghost_norm = hist_ghost / (np.sum(hist_ghost) * (r_centers[1] - r_centers[0]))
     
-    hist_real, _ = np.histogram(distances_real, bins=bin_edges, density=True)
-    hist_ghost, _ = np.histogram(distances_ghost, bins=bin_edges, density=True)
+    g_r = np.divide(hist_real_norm, hist_ghost_norm, 
+                    out=np.ones_like(hist_real_norm), 
+                    where=(hist_ghost_norm > 1e-10))
     
-    g_r = np.divide(hist_real, hist_ghost, 
-                    out=np.ones_like(hist_real), 
-                    where=(hist_ghost > 1e-10))
-    
-    return r_centers, g_r, hist_real, hist_ghost
+    return r_centers, g_r, hist_real_norm, hist_ghost_norm
 
 # ===============================
 # WORKER PARALLÈLE
 # ===============================
 
-def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_p1, start_area_p2):
+def worker_particle(seed, particle_id, x_space, coupling_code, side, 
+                    start_area_p1, start_area_p2, bins_1d, bins_2d, bin_edges_dist):
     """
     Executes one independent stochastic realization of the
     two-particle pilot-wave dynamics.
@@ -427,28 +423,33 @@ def worker_particle(seed, particle_id, x_space, coupling_code, side, start_area_
     # Distances
     d_real = np.abs(t1_post - t2_post)
     d_ghost = np.abs(ts1_post - ts2_post)
-    
-    # Position for Heatmap
-    positions_p1 = t1_post[::1]  # Subsampling possible
-    positions_p2 = t2_post[::1]
+    hist_dist_real, _ = np.histogram(d_real, bins=bin_edges_dist)
+    hist_dist_ghost, _ = np.histogram(d_ghost, bins=bin_edges_dist)
+                      
+    # Position for Heatmap 
+    hist_2d, _, _ = np.histogram2d(
+        t1_post[::1],     # Subsampling possible
+        t2_post[::1],
+        bins=bins_2d,
+        range=[[CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max]]
+    )
     
     return {
         'hist_p1': hist_p1_real.astype(np.float32),
         'hist_p2': hist_p2_real.astype(np.float32),
+        'hist_dist_real': hist_dist_real.astype(np.float32),
+        'hist_dist_ghost': hist_dist_ghost.astype(np.float32),
+        'hist_2d': hist_2d.astype(np.float32),
         'psi1_acc': psi1_acc,
         'psi2_acc': psi2_acc,
         'psi_sum_acc': psi_sum_acc,
         'phi1_acc': phi1_acc,
         'phi2_acc': phi2_acc,
-        'born1_acc': born1_acc, 
+        'born1_acc': born1_acc,
         'born2_acc': born2_acc,
         'born_sum_acc': born_sum_acc,
-        'born1_accumulated': born1_accumulated, 
-        'born2_accumulated': born2_accumulated,        
-        'dist_real': d_real,
-        'dist_ghost': d_ghost,
-        'positions_p1': positions_p1,
-        'positions_p2': positions_p2
+        'born1_accumulated': born1_accumulated,
+        'born2_accumulated': born2_accumulated
     }
 
 # ===============================
@@ -477,41 +478,30 @@ def run_pauli_simulation():
     print(f"  γ={CFG.gamma}, D_ψ={CFG.D_psi}, ω={CFG.omega}, α={CFG.alpha}, D_x={CFG.D_x}")
     print(f"  Coupling: {CFG.coupling_type}")
     print("="*70)
-    
-    x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
+
+    # Coupling mode
     coupling_code = 1 if CFG.coupling_type == "sum" else 0
     
+    # Space/Grid step
+    x_space = np.linspace(CFG.x_min, CFG.x_max, CFG.Nx)
+    bins_1d = CFG.Nx
+    bins_2d = CFG.Nx
+    L = CFG.x_max - CFG.x_min
+    bins_dist = 150
+    bin_edges_dist = np.linspace(0, L, bins_dist+1)
+  
     start_time = time.time()
     
     # ========================================
     # PARALLEL EXECUTION
     # ========================================
-    # Each worker runs a fully independent stochastic realization.
-    print("\n🚀 Starting parallel simulation...\n")
-    
-    results = Parallel(n_jobs=n_cores, backend='loky', verbose=0)(
-        delayed(worker_particle)(
-            seed = 42 + p*1000,
-            particle_id = p,
-            x_space = x_space,
-            coupling_code = coupling_code,
-            side = CFG.SIDE,
-            start_area_p1 = CFG.start_area_p1,
-            start_area_p2 = CFG.start_area_p2
-        ) for p in tqdm(range(CFG.N_runs), desc="Pairs")
-    )
-    
-    elapsed = time.time() - start_time
-    print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
-    
-    # ========================================
-    # AGGREGATION OF ENSEMBLE STATISTICS
-    # ========================================
-    print("\n📊 Aggregating statistics...")
 
     # Histograms → empirical particle densities
-    hist_p1_total = np.zeros(CFG.Nx)
-    hist_p2_total = np.zeros(CFG.Nx)
+    hist_p1_total = np.zeros(bins_1d, dtype=np.float64)
+    hist_p2_total = np.zeros(bins_1d, dtype=np.float64)
+    hist_dist_real_total = np.zeros(bins_dist, dtype=np.float64)
+    hist_dist_ghost_total = np.zeros(bins_dist, dtype=np.float64)
+    hist_2d_total = np.zeros((bins_2d, bins_2d), dtype=np.float64)
     # ψ fields → time-averaged guiding fields
     psi1_mean = np.zeros(CFG.Nx, dtype=np.complex128)
     psi2_mean = np.zeros(CFG.Nx, dtype=np.complex128)
@@ -522,18 +512,41 @@ def run_pauli_simulation():
     born1_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born2_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born_sum_mean = np.zeros(CFG.Nx, dtype=np.float64)
-    integral_born = np.zeros(CFG.Nx, dtype=np.float64)
     born1_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
     born2_accumulated_mean = np.zeros(CFG.Nx, dtype=np.float64)
-    # Distances → pair correlation statistics
-    dist_real_all = []
-    dist_ghost_all = []
-    positions_p1_all = []
-    positions_p2_all = []
+  
+    # Each worker runs a fully independent stochastic realization.
+    print("\n🚀 Starting parallel simulation...\n")
     
+    results = Parallel(n_jobs=n_cores, backend='loky', verbose=0)(
+        delayed(worker_particle_optimized)(
+            seed=42 + p*1000,
+            particle_id=p,
+            x_space=x_space,
+            coupling_code=coupling_code,
+            side=CFG.SIDE,
+            start_area_p1=CFG.start_area_p1,
+            start_area_p2=CFG.start_area_p2,
+            bins_1d=bins_1d,
+            bins_2d=bins_2d,
+            bin_edges_dist=bin_edges_dist
+        ) for p in tqdm(range(CFG.N_runs), desc="Pairs")
+    )
+    
+    elapsed = time.time() - start_time
+    print(f"\n✓ Simulation completed in {elapsed/60:.2f} min")
+    
+    # ========================================
+    # AGGREGATION OF ENSEMBLE STATISTICS
+    # ========================================
+    print("\n📊 Aggregating statistics...")
+     
     for res in tqdm(results, desc="Fusion"):
         hist_p1_total += res['hist_p1']
         hist_p2_total += res['hist_p2']
+        hist_dist_real_total += res['hist_dist_real']
+        hist_dist_ghost_total += res['hist_dist_ghost']
+        hist_2d_total += res['hist_2d']
         psi1_mean += res['psi1_acc']
         psi2_mean += res['psi2_acc']
         psi_sum_mean += res['psi_sum_acc']
@@ -544,10 +557,6 @@ def run_pauli_simulation():
         born_sum_mean += res['born_sum_acc']
         born1_accumulated_mean += res['born1_accumulated']
         born2_accumulated_mean += res['born2_accumulated']
-        dist_real_all.extend(res['dist_real'])
-        dist_ghost_all.extend(res['dist_ghost'])
-        positions_p1_all.extend(res['positions_p1'])
-        positions_p2_all.extend(res['positions_p2'])
     
     # Normalization
     psi1_mean /= CFG.N_runs
@@ -580,7 +589,9 @@ def run_pauli_simulation():
     dist_ghost_all = np.array(dist_ghost_all)
     positions_p1_all = np.array(positions_p1_all)
     positions_p2_all = np.array(positions_p2_all)
-    
+
+    r_centers = 0.5 * (bin_edges_dist[:-1] + bin_edges_dist[1:])
+  
     return {
         'x_space': x_space,
         'rho_p1_obs': rho_p1_obs,
@@ -591,10 +602,11 @@ def run_pauli_simulation():
         'born_sum': born_sum,
         'phi1_mean': phi1_mean,
         'phi2_mean': phi2_mean,
-        'dist_real': dist_real_all,
-        'dist_ghost': dist_ghost_all,
-        'positions_p1': positions_p1_all,
-        'positions_p2': positions_p2_all
+        'hist_dist_real': hist_dist_real_total,
+        'hist_dist_ghost': hist_dist_ghost_total,
+        'hist_2d': hist_2d_total,
+        'r_centers': r_centers,
+        'bin_edges_dist': bin_edges_dist
     }
 
 # ===============================
@@ -790,13 +802,15 @@ def analyze_results(data, theory):
     # ========================================
     # 4. g(r) FONCTION
     # ========================================
-    r_vals, g_r, hist_real, hist_ghost = compute_pair_correlation(
-        data['dist_real'], data['dist_ghost'], CFG.x_min, CFG.x_max)
+    r_vals, g_r, hist_real_norm, hist_ghost_norm = compute_pair_correlation(
+        data['hist_dist_real'], data['hist_dist_ghost'], data['r_centers']
+    )
     g_0 = g_r[np.argmin(np.abs(r_vals - 1.0))]
     
     # Exclusion Factor
-    overlap_real = np.mean(data['dist_real'] < 2.0)
-    overlap_ghost = np.mean(data['dist_ghost'] < 2.0)
+    idx_2 = np.where(r_vals < 5.0)[0]
+    overlap_real = np.sum(data['hist_dist_real'][idx_2]) / np.sum(data['hist_dist_real'])
+    overlap_ghost = np.sum(data['hist_dist_ghost'][idx_2]) / np.sum(data['hist_dist_ghost'])
     exclusion_factor = overlap_ghost / (overlap_real + 1e-9)
     
     # ========================================
@@ -889,8 +903,8 @@ def analyze_results(data, theory):
         'g_r': (r_vals, g_r),
         'g_0': g_0,
         'exclusion_factor': exclusion_factor,
-        'hist_real': hist_real,
-        'hist_ghost': hist_ghost,
+        'hist_real': hist_real_norm,
+        'hist_ghost': hist_ghost_norm,
         'rho_qm_p1': rho_qm_p1,      
         'rho_qm_p2': rho_qm_p2,      
         'rho_qm_total': rho_qm_total        
@@ -1062,13 +1076,11 @@ def plot_results_page2(data, theory, metrics):
     # 3. HEATMAP 2D : Position(P1) vs Position(P2)
     # ========================================
     ax3 = fig.add_subplot(gs[1, 0])
-    H, xedges, yedges = np.histogram2d(data['positions_p1'], data['positions_p2'], 
-                                        bins=60, range=[[CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max]])
-    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+    H = data['hist_2d']
+    extent = [CFG.x_min, CFG.x_max, CFG.x_min, CFG.x_max]
     im = ax3.imshow(H.T, origin='lower', extent=extent, cmap='hot', aspect='auto', 
                     interpolation='bilinear')
     
-    # Diagonale (positions identiques - interdit pour fermions)
     ax3.plot([CFG.x_min, CFG.x_max], [CFG.x_min, CFG.x_max], 'cyan', linewidth=2.5, 
              linestyle='--', label='x₁=x₂')
     
@@ -1076,7 +1088,7 @@ def plot_results_page2(data, theory, metrics):
     ax3.set_ylabel('Position P2', fontsize=11)
     ax3.set_title('Joined positions Heatmap', fontweight='bold', fontsize=12)
     ax3.legend(fontsize=10, loc='upper left')
-    plt.colorbar(im, ax=ax3, label='Densité')
+    plt.colorbar(im, ax=ax3, label='Density')
     
     # ========================================
     # 4. THEORETICAL FERMIONS HEATMAP
