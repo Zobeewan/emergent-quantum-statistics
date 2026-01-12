@@ -47,12 +47,10 @@ CFG = Pauli_Config()
 # avoid changing the numerical behavior, this translation keeps the same
 # variable names as in the original code and does not change logic.
 
-# Default potentials (disabled by default)
+# Harmonic Potentials (disabled by default)
 use_potential_h = False
+# Coulombian Potentials (disabled by default)
 use_potential_c = False
-V0 = 0.1
-V0_coulomb = 15.0
-softening = 1.0
 
 # ===============================
 # NUMERICAL CORE (NUMBA)
@@ -334,8 +332,8 @@ def run_born_simulation_2d():
     X, Y = np.meshgrid(x_space, y_space, indexing='ij')
 
     # Potentials (optional)
-    V_harm = 0.5 * V0 * (X**2 + Y**2) if use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
-    V_coulomb = (-V0_coulomb / np.sqrt(X**2 + Y**2 + softening**2)
+    V_harm = 0.5 * CFG.V0 * (X**2 + Y**2) if use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
+    V_coulomb = (-CFG.V0_coulomb / np.sqrt(X**2 + Y**2 + CFG.softening**2)
                  if use_potential_c else np.zeros((CFG.Nx, CFG.Ny)))
     V_pot = V_harm + V_coulomb
 
