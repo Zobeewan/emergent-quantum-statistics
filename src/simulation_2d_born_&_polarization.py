@@ -47,10 +47,12 @@ CFG = Born_2D_Config()
 # avoid changing the numerical behavior, this translation keeps the same
 # variable names as in the original code and does not change logic.
 
+
 # Harmonic Potentials (disabled by default)
-use_potential_h = False
+#CFG.use_potential_h = False      # Uncomment this line to directly change potentiel here
+
 # Coulombian Potentials (disabled by default)
-use_potential_c = False
+#CFG.use_potential_c = False      # Uncomment this line to directly change potentiel here
 
 # ===============================
 # NUMERICAL CORE (NUMBA)
@@ -332,9 +334,9 @@ def run_born_simulation_2d():
     X, Y = np.meshgrid(x_space, y_space, indexing='ij')
 
     # Potentials (optional)
-    V_harm = 0.5 * CFG.V0 * (X**2 + Y**2) if use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
+    V_harm = 0.5 * CFG.V0 * (X**2 + Y**2) if CFG.use_potential_h else np.zeros((CFG.Nx, CFG.Ny))
     V_coulomb = (-CFG.V0_coulomb / np.sqrt(X**2 + Y**2 + CFG.softening**2)
-                 if use_potential_c else np.zeros((CFG.Nx, CFG.Ny)))
+                 if CFG.use_potential_c else np.zeros((CFG.Nx, CFG.Ny)))
     V_pot = V_harm + V_coulomb
 
     # Memory estimate
@@ -368,8 +370,8 @@ def run_born_simulation_2d():
     print(f"  α={CFG.alpha}, D_part={CFG.D_part} {'✓ ACTIVE' if CFG.D_part > 0 else '⚠️ INACTIVE'}")
     print(f"  emit_amp={CFG.emit_amp}, σ={CFG.sigma_emit_scaled :.2f}")
     print(f"\nPotentials :")
-    print(f"  Harmonic : {'YES' if use_potential_h else 'NO'}")
-    print(f"  Coulomb  : {'YES' if use_potential_c else 'NO'}")
+    print(f"  Harmonic : {'YES' if CFG.use_potential_h else 'NO'}")
+    print(f"  Coulomb  : {'YES' if CFG.use_potential_c else 'NO'}")
     print("="*70)
 
     if cfl >= 0.5:
