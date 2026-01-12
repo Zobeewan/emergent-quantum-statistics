@@ -584,11 +584,6 @@ def run_pauli_simulation():
         
     integral_born = np.trapz(born_sum_mean, x_space)        
     born_sum = 2 * (born_sum_mean / integral_born)          # The total Born density is normalized to 2 (because the system contains two particles)
-    
-    dist_real_all = np.array(dist_real_all)
-    dist_ghost_all = np.array(dist_ghost_all)
-    positions_p1_all = np.array(positions_p1_all)
-    positions_p2_all = np.array(positions_p2_all)
 
     r_centers = 0.5 * (bin_edges_dist[:-1] + bin_edges_dist[1:])
   
