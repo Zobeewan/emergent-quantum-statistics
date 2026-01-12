@@ -32,7 +32,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
 3. Born rule and Polarization & Vectorial Flow (2D)
 
-    Script: src/simulation_2d_polarization.py
+    Script: src/simulation_2d_born_&_polarization.py
 
     Physics: 2D extension showing that the probability current J generates local vortex structures (emergent spin) from a scalar field.
 
