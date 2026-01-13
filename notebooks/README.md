@@ -5,3 +5,5 @@ High-performance implementation using Taichi (GPU parallelization).
 Performance: ~30-150 minutes     
 
 Increase N_TOTAL_RUNS for better statistical convergence. But for free use only 15,000 is usually near the free daily limit
+
+The first cell is optional and is use to saves your results in your Google Drive
