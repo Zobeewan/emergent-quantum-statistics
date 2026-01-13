@@ -32,17 +32,16 @@ This repository contains the high-performance Python/Numba implementation of a l
 
 3. Born rule and Polarization & Vectorial Flow (2D)
 
-    Script: src/simulation_2d_born_&_polarization.py
-
     Physics: 2D extension showing that the probability current J generates local vortex structures (emergent spin) from a scalar field.
 
     Two implementations are available:
 
-    * **CPU Version:** `src/simulation_2d_cpu.py` (Reference implementation, slow).
+    * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
 
       Performance: ~1-5 hours depending on CPU cores.
       
-    * **GPU Version (Recommended):** High-performance implementation using Taichi Lang.
+    * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
+      (Coded for Google Colab or a powerful graphics card)
 
     [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   Performance: ~30-150 minutes     
     
