@@ -16,6 +16,9 @@ Hydrodynamic Quantum Analogs: 2D Pilot-Wave Simulation
 ======================================================
 Emergence of Born's Rule and phase current from local dynamics.
 
+This CPU implementation is slow, it serves as an algorithmic reference. 
+For better statistical convergence (high N_runs), please use the GPU/Taichi version.
+
 This file contains an 2D implementation of the pilot-wave model. 
 A single stochastic particle interacts with a complex
 pilot-wave field on a 2D grid. Ensemble averages over many independent
