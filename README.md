@@ -23,12 +23,14 @@ without imposing quantum axioms by hand.
 ### 1️⃣ Emergence of Born’s Rule (1D)
 
 **Objective:** 
+
 Demonstrate the statistical emergence of Born's Rule.
 That particle guided by a local pilot-wave with feedback
 dynamically relaxes toward the Born probability density ρ(x) ≈ |ψ(x)|².
 By statistical convergence and Ergodicity, from singles particle dynamics
 
 **Physical Model:**
+
 This model couples a stochastic point particle to a complex scalar field (pilot wave):
 - The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
 - The particle is guided by the local phase gradient of the field (Langevin dynamics).
@@ -36,6 +38,7 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
 - The system is in a state of free expansion (diffusion).
     
 **Key Result:**
+
 - The simulation demonstrates that the particle's statistical distribution ρ(x)
   dynamically conforms to the shape of the spread wave packet |ψ|²,
   with an high correlation and a low error L1.
@@ -118,15 +121,18 @@ to reveals local vectorial structures of the field (vortices).
 Two implementations are available:
 
 - **CPU Version:** `src/simulation_2d_born_&_polarization.py`
-  (Reference implementation, slow, not recommanded to high N_runs).
+- 
+  (Reference implementation, slow, not recommanded to high N_runs)
 
-  **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores).
+  **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores)
   
 - **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
+  
   High-performance implementation using Taichi Lang. (Coded for Google Colab or a powerful graphics card)
+  
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
-  **⏱ Runtime:** ~30–150 minutes
+  **⏱ Runtime:** ~30–150 minutes (depending on params)
 
 
 ----------
