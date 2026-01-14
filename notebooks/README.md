@@ -2,7 +2,7 @@
 High-performance implementation using Taichi (GPU parallelization).
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   
-Performance: ~30-150 minutes     
+Performance: ~20-100 minutes     
 
 Increase N_TOTAL_RUNS for better statistical convergence. 
 
