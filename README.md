@@ -1,8 +1,7 @@
-Emergent Quantum Statistics in Local Pilot-Wave Dynamics
+# Emergent Quantum Statistics in Local Pilot-Wave Dynamics
 
-Author: Christian Revoire (Independent Researcher)
-
-Date: Jan 2026
+**Christian Revoire**  
+Independent Researcher — January 2026
 
 This repository contains the high-performance Python/Numba implementation of a local hidden variable model inspired by walking droplets (Couder/Fort/Bush). The simulation demonstrates that Born's Rule and Pauli Exclusion can emerge from a purely local, deterministic wave-particle dynamics with feedback.
 
