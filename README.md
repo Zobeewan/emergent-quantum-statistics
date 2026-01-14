@@ -42,7 +42,8 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     - Performance: ~2-10 minutes (depending on CPU cores).
 
-1. Pauli Exclusion Principle (1D)
+
+2. Pauli Exclusion Principle (1D)
 
     - Principle
 
@@ -86,20 +87,47 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     - Performance: ~10-50 minutes (depending on CPU cores).
 
-2. Born rule and Polarization & Vectorial Flow (2D)
 
-    Physics: 2D extension showing that the probability current J generates local vortex structures (emergent spin) from a scalar field.
+3. Born rule and Polarization & Vectorial Flow (2D)
 
-    Two implementations are available:
+    - Principle
 
-    * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
+        This file contains an 2D implementation of the pilot-wave model.
 
-      Performance: ~1-5 hours depending on CPU cores.
+        The model extends a previously validated single-particle framework
+        demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
+        Here, the model is extended to 2D space.
+    
+    - Physical Model
       
-    * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
-      (Coded for Google Colab or a powerful graphics card)
+        A single stochastic particle interacts with a complex pilot-wave field on a 2D grid.
+        Ensemble averages over many independent realizations produce empirical
+        particle densities ρ(x,y) and time-averaged fields |ψ|² used to test convergence toward Born's rule,
+        and to reveals local vectorial structures of the field (vortices)
+        
 
-    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   Performance: ~30-150 minutes     
+    - Key Result
+
+        - The particle correctly samples the 2D field, with \rho(x,y)\approx\ |\psi|²
+        - Although \psi is a scalar field, analysis of the probability current
+          reveals local vectorial structures (vortices),
+          suggesting a possible connection with intrinsic angular momentum (spin)
+
+
+    - Script:
+      
+        Two implementations are available:
+    
+        * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
+    
+          Performance: ~1-5 hours depending on CPU cores.
+          
+        * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
+          (Coded for Google Colab or a powerful graphics card)
+    
+        [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
+
+      - Performance: ~30-150 minutes     
     
 
 
