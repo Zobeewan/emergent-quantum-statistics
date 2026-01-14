@@ -9,7 +9,7 @@ import multiprocessing as mp
 
 """
 Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
-==========================================
+======================================================
 Emergence of Pauli Exclusion Principle from Local Dynamics. 
 
 
