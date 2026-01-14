@@ -39,17 +39,18 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
     
 **Key Result**
 
-The simulation demonstrates that the particle's statistical distribution ρ(x)
+- The simulation demonstrates that the particle's statistical distribution ρ(x)
 dynamically conforms to the shape of the spread wave packet |ψ|²,
 with an high correlation and a low error L1.
 
-In other words, the probability density of the particle's position converges towards 
+- In other words, the probability density of the particle's position converges towards 
 the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
 towards Born's Rule without axiomatic postulates.
 
-It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
+- It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
 📁 Script: `src/simulation_1d_born.py`  
+
 ⏱ Runtime: ~2–10 minutes (depending on params and CPU cores).
 
 ----------
