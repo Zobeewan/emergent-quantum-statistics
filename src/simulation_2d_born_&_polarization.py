@@ -17,7 +17,8 @@ Hydrodynamic Quantum Analogs: 2D Pilot-Wave Simulation
 Emergence of Born's Rule and phase current from local dynamics.
 
 This CPU implementation is slow, it serves as an algorithmic reference. 
-For better statistical convergence (high N_runs), 
+It work well for simulating one particle (or a few),
+but for better statistical convergence (high N_runs), 
 you may try to use the GPU/Taichi version.
 
 
