@@ -23,14 +23,12 @@ without imposing quantum axioms by hand.
 ### 1️⃣ Emergence of Born’s Rule (1D)
 
 **Objective:** 
-
 Demonstrate the statistical emergence of Born's Rule.
 That particle guided by a local pilot-wave with feedback
 dynamically relaxes toward the Born probability density ρ(x) ≈ |ψ(x)|².
 By statistical convergence and Ergodicity, from singles particle dynamics
 
 **Physical Model:**
-  
 This model couples a stochastic point particle to a complex scalar field (pilot wave):
 - The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
 - The particle is guided by the local phase gradient of the field (Langevin dynamics).
@@ -38,7 +36,6 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
 - The system is in a state of free expansion (diffusion).
     
 **Key Result:**
-
 - The simulation demonstrates that the particle's statistical distribution ρ(x)
   dynamically conforms to the shape of the spread wave packet |ψ|²,
   with an high correlation and a low error L1.
