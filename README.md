@@ -18,7 +18,7 @@ without imposing quantum axioms by hand.
 
 ---
 
-## 📊 Key Results
+## 📊 Interpretation & Scripts & Key Results
 
 ### 1️⃣ Emergence of Born’s Rule (1D)
 
