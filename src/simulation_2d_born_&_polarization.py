@@ -22,9 +22,10 @@ but for better statistical convergence (high N_runs),
 you may try to use the GPU/Taichi version.
 
 
-Author : Revoire Christian
-Date   : January 2026
-License: MIT
+Author:      Revoire Christian 
+Affiliation: Independent Researcher
+Date:        Janvier 2026
+License:     MIT
 """
 
 # ===============================
