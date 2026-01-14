@@ -142,9 +142,7 @@ This code relies on Numba for JIT compilation and Joblib for parallel execution.
    
     pip install -r requirements.txt
 
-2. Download src folder
-
-3. Run 1st simulation:
+2. Run 1st simulation:
 
     python src/simulation_1d_born.py
 
