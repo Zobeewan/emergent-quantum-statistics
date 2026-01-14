@@ -158,9 +158,10 @@ pip install -r requirements.txt
 **Run 1st simulation:**
 ```bash
 python src/simulation_1d_born.py
-
+```
 
 ----------
+
 ## ⚙️ Model Parameters
 
 Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
