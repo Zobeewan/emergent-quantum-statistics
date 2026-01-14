@@ -122,7 +122,7 @@ Two implementations are available:
 
 - **CPU Version:** `src/simulation_2d_born_&_polarization.py`
 
-  Reference implementation (slow, not recommanded to high N_runs)
+  Reference implementation (slow, not recommanded for high N_runs with high correlation)
 
   **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores)
   
