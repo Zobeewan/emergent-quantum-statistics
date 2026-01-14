@@ -49,9 +49,9 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
 
 - It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
-📁 Script: `src/simulation_1d_born.py`  
+**📁 Script:** `src/simulation_1d_born.py`  
 
-⏱ Runtime: ~2–10 minutes (depending on params and CPU cores).
+**⏱ Runtime:** ~2–10 minutes (depending on params and CPU cores).
 
 ----------
 
@@ -67,7 +67,7 @@ The model extends a previously validated single-particle framework
 demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
 Here, the focus is placed on two-particle correlations.
     
-**Physical Model**
+**Physical Model:**
 
 - Each particle continuously emits and interacts with its own complex
   guiding field ψ₁(x,t), ψ₂(x,t). 
@@ -75,14 +75,14 @@ Here, the focus is placed on two-particle correlations.
   of an effective guiding field constructed
   from the sum of these individual fields.
     
-**Key assumptions**
+**Key assumptions:**
   
 - ❌ No antisymmetrization of trajectories
 - ❌ No explicit exclusion principle
 - ❌ No fermionic statistics imposed
 - ✅ Only local field–particle coupling and stochastic diffusion are included.
     
-**Key Result**
+**Key Result:**
 
 Ensemble-averaged statistics reveal:
 - A depletion of the pair correlation function at short distances:
@@ -94,74 +94,65 @@ Ensemble-averaged statistics reveal:
 These results suggest that Pauli-like exclusion may emerge as a consequence 
 of local pilot-wave dynamics, rather than as a fundamental postulate.
 
-📁 Script: `src/simulation_1d_pauli.py`  
+**📁 Script:** `src/simulation_1d_pauli.py`  
 
-⏱ Runtime: ~10–50 minutes (depending on params and CPU cores).
+**⏱ Runtime:** ~10–50 minutes (depending on params and CPU cores).
 
 ----------
 
 ### 3️⃣ Born Rule & Polarization in 2D
 
-- Principle
+**Objective:**  
 
-    This file contains an 2D implementation of the pilot-wave model.
+Extend the pilot-wave model to 2D and analyze statistical convergence and 
+to reveals local vectorial structures of the field (vortices).
 
-    The model extends a previously validated single-particle framework
-    demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
-    Here, the model is extended to 2D space.
+**Key Result:**
 
-- Physical Model
+- The particle correctly samples the 2D field,
+  with empirical density ρ(x,y) ≈ |(x,y)|²
+- Although ψ psi is a scalar field, analysis of the probability current
+  reveals local vectorial structures (vortices),
+  suggesting a possible connection with intrinsic angular momentum (spin)
+
+
+**Script:**
   
-    A single stochastic particle interacts with a complex pilot-wave field on a 2D grid.
-    Ensemble averages over many independent realizations produce empirical
-    particle densities ρ(x,y) and time-averaged fields |ψ|² used to test convergence toward Born's rule,
-    and to reveals local vectorial structures of the field (vortices)
-    
+Two implementations are available:
 
-- Key Result
+- **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
 
-    - The particle correctly samples the 2D field, with \rho(x,y)\approx\ |\psi|²
-    - Although \psi is a scalar field, analysis of the probability current
-      reveals local vectorial structures (vortices),
-      suggesting a possible connection with intrinsic angular momentum (spin)
-
-
-- Script:
+  Performance: ~1-5 hours (depending on params and CPU cores).
   
-    Two implementations are available:
+- **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
+  (Coded for Google Colab or a powerful graphics card)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
-    * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
-
-      Performance: ~1-5 hours (depending on params and CPU cores).
-      
-    * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
-      (Coded for Google Colab or a powerful graphics card)  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
-
-  ⏱ Runtime: ~30–150 minutes
+  **⏱ Runtime:** ~30–150 minutes
 
 
 ----------
 
-🛠️ Installation & Usage
+##🛠️ Installation & Usage
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
 
-1. Install dependencies:
-      ```bash
-    pip install numpy matplotlib scipy numba joblib tqdm
-    
+**1. Install dependencies:**
+```bash
+pip install numpy matplotlib scipy numba joblib tqdm
+``` 
 or
 
-    
-    pip install -r requirements.txt
+```bash    
+pip install -r requirements.txt
+```
+**2. Run 1st simulation:**
 
-3. Run 1st simulation:
-
-    python src/simulation_1d_born.py
+python src/simulation_1d_born.py
 
 
 ----------
-⚙️ Model Parameters
+##⚙️ Model Parameters
 
 Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside src/config.py 
 The default values are tuned for the "quantum regime" convergence.
