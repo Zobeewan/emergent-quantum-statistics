@@ -1,4 +1,4 @@
-# Emergent Quantum Statistics in Local Pilot-Wave Dynamics
+# Emergent Quantum Statistics in Stochastic Pilot-Wave Dynamics
 
 **Christian Revoire**  
 Independent Researcher — January 2026
