@@ -40,7 +40,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
     - Script: src/simulation_1d_born.py
 
-    - Performance: ~2-10 minutes (depending on CPU cores).
+    - Performance: ~2-10 minutes (depending on params and CPU cores).
 
 
 2. Pauli Exclusion Principle (1D)
@@ -85,7 +85,7 @@ This repository contains the high-performance Python/Numba implementation of a l
     
     - Script: src/simulation_1d_pauli.py
 
-    - Performance: ~10-50 minutes (depending on CPU cores).
+    - Performance: ~10-50 minutes (depending on params and CPU cores).
 
 
 3. Born rule and Polarization & Vectorial Flow (2D)
@@ -120,14 +120,12 @@ This repository contains the high-performance Python/Numba implementation of a l
     
         * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
     
-          Performance: ~1-5 hours depending on CPU cores.
+          Performance: ~1-5 hours (depending on params and CPU cores).
           
         * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
-          (Coded for Google Colab or a powerful graphics card)
-    
-        [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
+          (Coded for Google Colab or a powerful graphics card)  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
-      - Performance: ~30-150 minutes     
+      - Performance: ~30-150 minutes (depending on params).    
     
 
 
