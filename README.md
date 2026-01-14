@@ -22,30 +22,30 @@ without imposing quantum axioms by hand.
 
 ### 1️⃣ Emergence of Born’s Rule (1D)
 
-**Objective** 
+**Objective:** 
 
 Demonstrate the statistical emergence of Born's Rule.
 That particle guided by a local pilot-wave with feedback
 dynamically relaxes toward the Born probability density ρ(x) ≈ |ψ(x)|².
 By statistical convergence and Ergodicity, from singles particle dynamics
 
-**Physical Model**
+**Physical Model:**
   
 This model couples a stochastic point particle to a complex scalar field (pilot wave):
-1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
-2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
-3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
-4. The system is in a state of free expansion (diffusion).
+- The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
+- The particle is guided by the local phase gradient of the field (Langevin dynamics).
+- The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
+- The system is in a state of free expansion (diffusion).
     
-**Key Result**
+**Key Result:**
 
 - The simulation demonstrates that the particle's statistical distribution ρ(x)
-dynamically conforms to the shape of the spread wave packet |ψ|²,
-with an high correlation and a low error L1.
+  dynamically conforms to the shape of the spread wave packet |ψ|²,
+  with an high correlation and a low error L1.
 
-- In other words, the probability density of the particle's position converges towards 
-the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
-towards Born's Rule without axiomatic postulates.
+- In other words, the probability density of the particle's position converges towards
+  the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
+  towards Born's Rule without axiomatic postulates.
 
 - It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
