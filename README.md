@@ -128,7 +128,7 @@ Two implementations are available:
   
 - **GPU Version (Recommended):** `notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
   
-  High-performance implementation using Taichi Lang. (Coded for Google Colab or for powerful graphics card)
+  High-performance implementation using Taichi Lang. (Coded for Google Colab GPU)
   
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
