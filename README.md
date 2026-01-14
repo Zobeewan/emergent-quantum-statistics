@@ -49,7 +49,7 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
 
 - It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
 
-**📁 Script:** `src/simulation_1d_born.py`  
+**📁 Script:** `src/simulation_1D_Born.py`  
 
 **⏱ Runtime:** ~2–10 minutes (depending on params and CPU cores).
 
@@ -94,7 +94,7 @@ Ensemble-averaged statistics reveal:
 These results suggest that Pauli-like exclusion may emerge as a consequence 
 of local pilot-wave dynamics, rather than as a fundamental postulate.
 
-**📁 Script:** `src/simulation_1d_pauli.py`  
+**📁 Script:** `src/simulation_1D_Pauli.py`  
 
 **⏱ Runtime:** ~10–50 minutes (depending on params and CPU cores).
 
@@ -120,17 +120,17 @@ to reveals local vectorial structures of the field (vortices).
   
 Two implementations are available:
 
-- **CPU Version:** `src/simulation_2d_born_&_polarization.py`
+- **CPU Version:** `src/simulation_2D_Born_&_polarization.py`
 
   Reference implementation (slow, not recommanded for high N_runs with high correlation)
 
   **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores)
   
-- **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
+- **GPU Version (Recommended):** `notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
   
   High-performance implementation using Taichi Lang. (Coded for Google Colab or for powerful graphics card)
   
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
   **⏱ Runtime:** ~20–100 minutes (depending on params)
 
@@ -163,5 +163,5 @@ pip install -r requirements.txt
 
 **Run 1st simulation:**
 ```bash
-python src/simulation_1d_born.py
+python src/simulation_1D_Born.py
 ```
