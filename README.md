@@ -3,146 +3,162 @@
 **Christian Revoire**  
 Independent Researcher — January 2026
 
-> This repository contains the high-performance Python/Numba implementation of a local hidden variable model inspired by walking droplets (Couder/Fort/Bush).
-> The simulation demonstrates that Born's Rule and Pauli Exclusion can emerge from a purely local, deterministic wave-particle dynamics with feedback.
-
+> Local deterministic pilot-wave dynamics showing the emergent convergence toward  
+> Born's Rule and Pauli-like exclusion without imposing quantum postulates.
 
 ----------
-📁 Key Results & Scripts & Interpretation
 
-1. Born Rule Convergence (1D)
+## 🔬 Overview
 
-    - Principle
-      
-       This script simulates a pilot-wave dynamic with feedback (walking droplet type)
-       in 1D to demonstrate the statistical emergence of Born's Rule.
-       By statistical convergence and Ergodicity, from singles particle dynamics
-        
-    - Physical Model
-      
-       This model couples a stochastic point particle to a complex scalar field (pilot wave):
-       1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
-       2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
-       3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
-       4. The system is in a state of free expansion (diffusion).
-        
-    - Key Result
+This repository contains high-performance Python/Numba simulations of a local hidden-variable
+model inspired by walking droplets (Couder–Fort–Bush).
 
-       The simulation demonstrates that the particle's statistical distribution ρ(x)
-       dynamically conforms to the shape of the spread wave packet |ψ|²,
-       with an high correlation and a low error L1.
-      
-       In other words, the probability density of the particle's position converges towards 
-       the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
-       towards Born's Rule without axiomatic postulates.
-      
-       It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
-
-    - Script: src/simulation_1d_born.py
-
-    - Performance: ~2-10 minutes (depending on params and CPU cores).
+The goal is to investigate whether key quantum statistical properties, such as Born’s rule
+and fermionic exclusion, can **emerge dynamically** from local wave–particle dynamics with feedback,
+without imposing quantum axioms by hand.
 
 
-2. Pauli Exclusion Principle (1D)
+---
 
-    - Principle
+## 📊 Key Results
 
-       This simulation investigates whether fermionic-like exclusion effects
-       can emerge dynamically from a purely local pilot-wave model, without
-       imposing antisymmetry, exchange rules, or quantum statistics by hand.
-        
-       The model extends a previously validated single-particle framework
-       demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
-       Here, the focus is placed on two-particle correlations.
-        
-    - Physical Model
+### 1️⃣ Emergence of Born’s Rule (1D)
 
-       Each particle continuously emits and interacts with its own complex
-       guiding field ψ₁(x,t), ψ₂(x,t). Particle dynamics is governed by the
-       phase gradient of an effective guiding field constructed from the sum 
-       of these individual fields.
-        
-    - Key assumptions
-      
-        - No antisymmetrization of trajectories
-        - No explicit exclusion principle
-        - No fermionic statistics imposed
-        
-       Only local field–particle coupling and stochastic diffusion are included.
-        
-    - Key Result
+- Principle
   
-       Despite the absence of any imposed exclusion rule, ensemble-averaged
-       statistics reveal:
-        - A depletion of the pair correlation function at short distances:
-          g(r) << 1
-        - A correlation hole analogous to the Fermi hole
-        - A suppression of joint configurations along x₁ = x₂
-        - Single particles statistical distribution ρ(x) dynamically conforms to the shape of the spread wave packet |ψ|².
+   This script simulates a pilot-wave dynamic with feedback (walking droplet type)
+   in 1D to demonstrate the statistical emergence of Born's Rule.
+   By statistical convergence and Ergodicity, from singles particle dynamics
+    
+- Physical Model
+  
+   This model couples a stochastic point particle to a complex scalar field (pilot wave):
+   1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
+   2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
+   3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
+   4. The system is in a state of free expansion (diffusion).
+    
+- Key Result
+
+   The simulation demonstrates that the particle's statistical distribution ρ(x)
+   dynamically conforms to the shape of the spread wave packet |ψ|²,
+   with an high correlation and a low error L1.
+  
+   In other words, the probability density of the particle's position converges towards 
+   the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
+   towards Born's Rule without axiomatic postulates.
+  
+   It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
+
+- Script: src/simulation_1d_born.py
+
+- Performance: ~2-10 minutes (depending on params and CPU cores).
+
+----------
+
+### 2️⃣ Emergent Pauli-Like Exclusion (1D)
+
+- Principle
+
+   This simulation investigates whether fermionic-like exclusion effects
+   can emerge dynamically from a purely local pilot-wave model, without
+   imposing antisymmetry, exchange rules, or quantum statistics by hand.
+    
+   The model extends a previously validated single-particle framework
+   demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
+   Here, the focus is placed on two-particle correlations.
+    
+- Physical Model
+
+   Each particle continuously emits and interacts with its own complex
+   guiding field ψ₁(x,t), ψ₂(x,t). Particle dynamics is governed by the
+   phase gradient of an effective guiding field constructed from the sum 
+   of these individual fields.
+    
+- Key assumptions
+  
+    - No antisymmetrization of trajectories
+    - No explicit exclusion principle
+    - No fermionic statistics imposed
+    
+   Only local field–particle coupling and stochastic diffusion are included.
+    
+- Key Result
+
+   Despite the absence of any imposed exclusion rule, ensemble-averaged
+   statistics reveal:
+    - A depletion of the pair correlation function at short distances:
+      g(r) << 1
+    - A correlation hole analogous to the Fermi hole
+    - A suppression of joint configurations along x₁ = x₂
+    - Single particles statistical distribution ρ(x) dynamically conforms to the shape of the spread wave packet |ψ|².
+  
+   These results suggest that Pauli-like exclusion may emerge as a consequence 
+   of local pilot-wave dynamics, rather than as a fundamental postulate.
+
+- Script: src/simulation_1d_pauli.py
+
+- Performance: ~10-50 minutes (depending on params and CPU cores).
+
+----------
+
+### 3️⃣ Born Rule & Polarization in 2D
+
+- Principle
+
+    This file contains an 2D implementation of the pilot-wave model.
+
+    The model extends a previously validated single-particle framework
+    demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
+    Here, the model is extended to 2D space.
+
+- Physical Model
+  
+    A single stochastic particle interacts with a complex pilot-wave field on a 2D grid.
+    Ensemble averages over many independent realizations produce empirical
+    particle densities ρ(x,y) and time-averaged fields |ψ|² used to test convergence toward Born's rule,
+    and to reveals local vectorial structures of the field (vortices)
+    
+
+- Key Result
+
+    - The particle correctly samples the 2D field, with \rho(x,y)\approx\ |\psi|²
+    - Although \psi is a scalar field, analysis of the probability current
+      reveals local vectorial structures (vortices),
+      suggesting a possible connection with intrinsic angular momentum (spin)
+
+
+- Script:
+  
+    Two implementations are available:
+
+    * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
+
+      Performance: ~1-5 hours (depending on params and CPU cores).
       
-       These results suggest that Pauli-like exclusion may emerge as a consequence 
-       of local pilot-wave dynamics, rather than as a fundamental postulate.
-    
-    - Script: src/simulation_1d_pauli.py
+    * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
+      (Coded for Google Colab or a powerful graphics card)  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
-    - Performance: ~10-50 minutes (depending on params and CPU cores).
-
-
-3. Born rule and Polarization & Vectorial Flow (2D)
-
-    - Principle
-
-        This file contains an 2D implementation of the pilot-wave model.
-
-        The model extends a previously validated single-particle framework
-        demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
-        Here, the model is extended to 2D space.
-    
-    - Physical Model
-      
-        A single stochastic particle interacts with a complex pilot-wave field on a 2D grid.
-        Ensemble averages over many independent realizations produce empirical
-        particle densities ρ(x,y) and time-averaged fields |ψ|² used to test convergence toward Born's rule,
-        and to reveals local vectorial structures of the field (vortices)
-        
-
-    - Key Result
-
-        - The particle correctly samples the 2D field, with \rho(x,y)\approx\ |\psi|²
-        - Although \psi is a scalar field, analysis of the probability current
-          reveals local vectorial structures (vortices),
-          suggesting a possible connection with intrinsic angular momentum (spin)
-
-
-    - Script:
-      
-        Two implementations are available:
-    
-        * **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
-    
-          Performance: ~1-5 hours (depending on params and CPU cores).
-          
-        * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
-          (Coded for Google Colab or a powerful graphics card)  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
-
-      - Performance: ~30-150 minutes (depending on params).    
+  - Performance: ~30-150 minutes (depending on params).    
     
 
 
 ----------
+
 🛠️ Installation & Usage
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
 
 1. Install dependencies:
-    
+      ```bash
     pip install numpy matplotlib scipy numba joblib tqdm
-   
-   or
-   
+    
+or
+
+    
     pip install -r requirements.txt
 
-2. Run 1st simulation:
+3. Run 1st simulation:
 
     python src/simulation_1d_born.py
 
