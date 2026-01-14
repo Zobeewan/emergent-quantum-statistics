@@ -122,7 +122,7 @@ Two implementations are available:
 
 - **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
 
-  Performance: ~1-5 hours (depending on params and CPU cores).
+  **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores).
   
 - **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
   (Coded for Google Colab or a powerful graphics card)
@@ -133,7 +133,7 @@ Two implementations are available:
 
 ----------
 
-##🛠️ Installation & Usage
+## 🛠️ Installation & Usage
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
 
@@ -152,7 +152,7 @@ python src/simulation_1d_born.py
 
 
 ----------
-##⚙️ Model Parameters
+## ⚙️ Model Parameters
 
-Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside src/config.py 
-The default values are tuned for the "quantum regime" convergence.
+Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
+The default values are tuned to reach the quantum relaxation regime.
