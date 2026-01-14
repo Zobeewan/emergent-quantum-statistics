@@ -37,12 +37,6 @@ except ImportError:
     from config import Born_2D_Config
 CFG = Born_2D_Config()
 
-# The original script used several module-level names (Nx, Ny, dt, dx, ...)
-# which are expected to be provided by the imported config module. To
-# avoid changing the numerical behavior, this translation keeps the same
-# variable names as in the original code and does not change logic.
-
-
 # ===============================
 # NUMERICAL CORE (NUMBA)
 # ===============================
@@ -52,17 +46,13 @@ def evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p,
                     dt, dx, dy, omega, gamma, d_psi, 
                     emit_amp, sigma, x_min, y_min, Nx, Ny):
     """
-    Advance the 2D pilot-wave field by one time-step using a preallocated
-    Laplacian buffer. The routine is parallelized over the i-index.
+    Evolves the complex guiding field ψ(x,t) for one time step.
 
     Contributions:
-    - Discrete Laplacian (finite differences)
-    - Diffusive + dispersive update
-    - Linear damping
-    - Local Gaussian source centered on the particle position
-
-    All temporary buffers are provided to minimize memory allocations
-    inside the Numba jitted routine.
+    - Diffusion (Laplacian)
+    - Oscillation (imaginary term)
+    - Linear Damping
+    - Particle emission (localized Gaussian source)
     """
     # 1) Compute 2D Laplacian (parallel loops)
     for i in prange(1, Nx-1):
@@ -157,8 +147,8 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
 
     Returns:
         positions_x, positions_y : sampled particle positions after thermalization
-        psi_acc   : time-accumulated complex field (for averaging)
-        psi2_acc  : time-accumulated intensity |ψ|²
+        psi_acc   : time-accumulated complex field (for guiding)
+        psi2_acc  : time-accumulated intensity |ψ|² (for convergence)
 
     The routine uses explicit Euler updates and performs a gentle
     renormalization/clipping for numerical stability.
