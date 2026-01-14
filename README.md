@@ -141,7 +141,7 @@ Two implementations are available:
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
 
-**1. Install dependencies:**
+**Install dependencies:**
 ```bash
 pip install numpy matplotlib scipy numba joblib tqdm
 ``` 
@@ -150,9 +150,14 @@ or
 ```bash    
 pip install -r requirements.txt
 ```
-**2. Run 1st simulation:**
 
-`python src/simulation_1d_born.py`
+----------
+
+## ▶️ Usage
+
+**Run 1st simulation:**
+```bash
+python src/simulation_1d_born.py
 
 
 ----------
