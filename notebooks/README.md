@@ -1,7 +1,7 @@
 ### 3️⃣ Born Rule & Polarization in 2D
 High-performance implementation using Taichi (GPU parallelization).
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   
 **⏱ Runtime:** ~20-100 minutes (depending on params)    
 
 Increase N_TOTAL_RUNS for better statistical convergence. 
