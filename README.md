@@ -3,6 +3,9 @@
 **Christian Revoire**  
 Independent Researcher — January 2026
 
+> A local, deterministic pilot-wave model showing the emergent convergence toward Born's Rule  
+> and Pauli-like exclusion without imposing quantum statistics.
+
 This repository contains the high-performance Python/Numba implementation of a local hidden variable model inspired by walking droplets (Couder/Fort/Bush). The simulation demonstrates that Born's Rule and Pauli Exclusion can emerge from a purely local, deterministic wave-particle dynamics with feedback.
 
 
