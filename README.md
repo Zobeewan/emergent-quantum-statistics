@@ -73,7 +73,7 @@ This repository contains the high-performance Python/Numba implementation of a l
 
         Despite the absence of any imposed exclusion rule, ensemble-averaged
         statistics reveal:
-        
+
         • A depletion of the pair correlation function at short distances:
           g(r) << 1
         • A correlation hole analogous to the Fermi hole
