@@ -136,13 +136,6 @@ Two implementations are available:
 
 ----------
 
-## ⚙️ Model Parameters
-
-Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
-The default values are tuned to reach the quantum relaxation regime.
-
-----------
-
 ## 🛠️ Installation
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
@@ -156,6 +149,13 @@ or
 ```bash    
 pip install -r requirements.txt
 ```
+
+----------
+
+## ⚙️ Model Parameters
+
+Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
+The default values are tuned to reach the quantum relaxation regime.
 
 ----------
 
