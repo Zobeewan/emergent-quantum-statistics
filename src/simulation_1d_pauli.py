@@ -13,10 +13,10 @@ Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 Emergence of Pauli Exclusion Principle from Local Dynamics. 
 
 
-Author : Revoire Christian 
-Affiliation : Independent Researcher
-Date   : Janvier 2026
-License: MIT
+Author:      Revoire Christian 
+Affiliation: Independent Researcher
+Date:        Janvier 2026
+License:     MIT
 """
 
 
