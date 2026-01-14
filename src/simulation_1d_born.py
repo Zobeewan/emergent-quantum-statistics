@@ -12,26 +12,6 @@ Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ======================================================
 Emergence of Born's Rule from Local Dynamics.
 
-This script simulates a pilot-wave dynamic with feedback (walking droplet type)
-in 1D to demonstrate the statistical emergence of Born's Rule.
-
-Physical Principle:
--------------------
-This model couples a stochastic point particle to a complex scalar field (pilot wave).
-1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
-2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
-3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
-
-Key Result:
------------
-The system is in a state of free expansion (diffusion).
-The simulation demonstrates that the particle's statistical distribution ρ(x)
-dynamically conforms to the shape of the spread wave packet |ψ|².
-In other words, the probability density of the particle's position converges towards 
-the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
-towards Born's Rule without axiomatic postulates.
-It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
-
 
 Author : Revoire Christian (Independent Researcher)
 Date   : Janvier 2026
