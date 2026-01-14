@@ -12,42 +12,6 @@ Hydrodynamic Quantum Analogs: 1D Pilot-Wave Simulation
 ==========================================
 Emergence of Pauli Exclusion Principle from Local Dynamics. 
 
-This simulation investigates whether fermionic-like exclusion effects
-can emerge dynamically from a purely local pilot-wave model, without
-imposing antisymmetry, exchange rules, or quantum statistics by hand.
-
-The model extends a previously validated single-particle framework
-demonstrating dynamical convergence toward the Born rule (ρ ≈ |ψ|²).
-Here, the focus is placed on two-particle correlations.
-
-Physical Model
---------------
-Each particle continuously emits and interacts with its own complex
-guiding field ψ₁(x,t), ψ₂(x,t). Particle dynamics is governed by the
-phase gradient of an effective guiding field constructed from the sum 
-of these individual fields.
-
-Key assumptions:
-• No antisymmetrization of trajectories
-• No explicit exclusion principle
-• No fermionic statistics imposed
-
-Only local field–particle coupling and stochastic diffusion are included.
-
-Key Result:
------------
-Despite the absence of any imposed exclusion rule, ensemble-averaged
-statistics reveal:
-
-• A depletion of the pair correlation function at short distances:
-  g(r → 0) < 1
-• A correlation hole analogous to the Fermi hole
-• A suppression of joint configurations along x₁ = x₂
-  (The distinct prediction in the joined positions come from the fermion indistinguishability nature (Symmetry properties)
-• Single particles statistical distribution ρ(x) dynamically conforms to the shape of the spread wave packet |ψ|².
-
-These results suggest that Pauli-like exclusion may emerge as a consequence 
-of local pilot-wave dynamics, rather than as a fundamental postulate.
 
 Author : Revoire Christian 
 Affiliation : Independent Researcher
