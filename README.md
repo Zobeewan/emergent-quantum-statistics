@@ -120,12 +120,13 @@ to reveals local vectorial structures of the field (vortices).
   
 Two implementations are available:
 
-- **CPU Version:** `src/simulation_2d_born_&_polarization.py` (Reference implementation, slow).
+- **CPU Version:** `src/simulation_2d_born_&_polarization.py`
+  (Reference implementation, slow, not recommanded to high N_runs).
 
   **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores).
   
-- **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
-  (Coded for Google Colab or a powerful graphics card)
+- **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
+  High-performance implementation using Taichi Lang. (Coded for Google Colab or a powerful graphics card)
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
   **⏱ Runtime:** ~30–150 minutes
@@ -148,7 +149,7 @@ pip install -r requirements.txt
 ```
 **2. Run 1st simulation:**
 
-python src/simulation_1d_born.py
+`python src/simulation_1d_born.py`
 
 
 ----------
