@@ -134,10 +134,16 @@ Two implementations are available:
 
   **⏱ Runtime:** ~20–100 minutes (depending on params)
 
+----------
+
+## ⚙️ Model Parameters
+
+Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
+The default values are tuned to reach the quantum relaxation regime.
 
 ----------
 
-## 🛠️ Installation & Usage
+## 🛠️ Installation
 
 This code relies on Numba for JIT compilation and Joblib for parallel execution.
 
@@ -159,10 +165,3 @@ pip install -r requirements.txt
 ```bash
 python src/simulation_1d_born.py
 ```
-
-----------
-
-## ⚙️ Model Parameters
-
-Key physical parameters (diffusion Dψ​, coupling α, memory γ, Dispersive frequency ω, Amplitude source, stochastic noise) are defined inside `src/config.py`.
-The default values are tuned to reach the quantum relaxation regime.
