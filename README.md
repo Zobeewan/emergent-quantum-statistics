@@ -3,8 +3,6 @@
 **Christian Revoire**  
 Independent Researcher — January 2026
 
-> Local deterministic pilot-wave dynamics showing the emergent convergence toward  
-> Born's Rule and Pauli-like exclusion without imposing quantum postulates.
 
 ----------
 
@@ -24,35 +22,35 @@ without imposing quantum axioms by hand.
 
 ### 1️⃣ Emergence of Born’s Rule (1D)
 
-- Principle
+**Objective** 
+
+Demonstrate the statistical emergence of Born's Rule.
+That particle guided by a local pilot-wave with feedback
+dynamically relaxes toward the Born probability density ρ(x) ≈ |ψ(x)|².
+By statistical convergence and Ergodicity, from singles particle dynamics
+
+**Physical Model**
   
-   This script simulates a pilot-wave dynamic with feedback (walking droplet type)
-   in 1D to demonstrate the statistical emergence of Born's Rule.
-   By statistical convergence and Ergodicity, from singles particle dynamics
+This model couples a stochastic point particle to a complex scalar field (pilot wave):
+1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
+2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
+3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
+4. The system is in a state of free expansion (diffusion).
     
-- Physical Model
-  
-   This model couples a stochastic point particle to a complex scalar field (pilot wave):
-   1. The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
-   2. The particle is guided by the local phase gradient of the field (Langevin dynamics).
-   3. The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
-   4. The system is in a state of free expansion (diffusion).
-    
-- Key Result
+**Key Result**
 
-   The simulation demonstrates that the particle's statistical distribution ρ(x)
-   dynamically conforms to the shape of the spread wave packet |ψ|²,
-   with an high correlation and a low error L1.
-  
-   In other words, the probability density of the particle's position converges towards 
-   the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
-   towards Born's Rule without axiomatic postulates.
-  
-   It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
+The simulation demonstrates that the particle's statistical distribution ρ(x)
+dynamically conforms to the shape of the spread wave packet |ψ|²,
+with an high correlation and a low error L1.
 
-- Script: src/simulation_1d_born.py
+In other words, the probability density of the particle's position converges towards 
+the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
+towards Born's Rule without axiomatic postulates.
 
-- Performance: ~2-10 minutes (depending on params and CPU cores).
+It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
+
+📁 Script: `src/simulation_1d_born.py`  
+⏱ Runtime: ~2–10 minutes (depending on params and CPU cores).
 
 ----------
 
@@ -96,9 +94,8 @@ without imposing quantum axioms by hand.
    These results suggest that Pauli-like exclusion may emerge as a consequence 
    of local pilot-wave dynamics, rather than as a fundamental postulate.
 
-- Script: src/simulation_1d_pauli.py
-
-- Performance: ~10-50 minutes (depending on params and CPU cores).
+📁 Script: `src/simulation_1d_pauli.py`  
+⏱ Runtime: ~10–50 minutes (depending on params and CPU cores).
 
 ----------
 
@@ -139,8 +136,7 @@ without imposing quantum axioms by hand.
     * **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb` High-performance implementation using Taichi Lang.
       (Coded for Google Colab or a powerful graphics card)  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
-  - Performance: ~30-150 minutes (depending on params).    
-    
+  ⏱ Runtime: ~30–150 minutes
 
 
 ----------
