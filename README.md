@@ -112,7 +112,9 @@ to reveals local vectorial structures of the field (vortices).
 - The particle correctly samples the 2D field,
   with empirical density ρ(x,y) ≈ |(x,y)|²
 - Although ψ psi is a scalar field, analysis of the probability current
+  
   reveals local vectorial structures (vortices),
+  
   suggesting a possible connection with intrinsic angular momentum (spin)
 
 
@@ -121,14 +123,14 @@ to reveals local vectorial structures of the field (vortices).
 Two implementations are available:
 
 - **CPU Version:** `src/simulation_2d_born_&_polarization.py`
-- 
-  (Reference implementation, slow, not recommanded to high N_runs)
+
+  Reference implementation (slow, not recommanded to high N_runs)
 
   **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores)
   
 - **GPU Version (Recommended):** `notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb`
   
-  High-performance implementation using Taichi Lang. (Coded for Google Colab or a powerful graphics card)
+  High-performance implementation using Taichi Lang. (Coded for Google Colab or for powerful graphics card)
   
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/Simulation_2D_Born_&_polarization_GPU_Colab.ipynb)
 
