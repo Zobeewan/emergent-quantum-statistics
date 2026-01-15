@@ -174,6 +174,4 @@ This repository presents exploratory numerical simulations in the context of qua
 
 The results reported here do **not** claim to reproduce quantum mechanics in full generality.
 
-Observed features such as Born-like relaxation or Pauli-like anticorrelations should be interpreted as **emergent behaviors within a specific class of pilot-wave models**, under specific assumptions, parameter regimes, and numerical constraints.
-
 All conclusions are model-dependent and subject to further validation, falsification, or reinterpretation.
