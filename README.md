@@ -163,5 +163,5 @@ The default values are tuned to reach the quantum relaxation regime.
 
 **Run 1st simulation:**
 ```bash
-python src/simulation_1D_Born.py
+src/simulation_1D_Born.py
 ```
