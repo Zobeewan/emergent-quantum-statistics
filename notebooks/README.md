@@ -31,5 +31,3 @@ For small runs (≤500 particles), up to single-particle tests, use the CPU vers
 ```text
 src/simulation_2D_Born_&_polarization.py
 ```
-
-To simulate less than 500, up to a single particle, use `src/simulation_2D_Born_&_polarization.py` instead
