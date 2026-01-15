@@ -77,6 +77,13 @@ A paragraph describing what changed and why."
 # push branch and open a Pull Request on GitHub
 git push -u origin feat/my-feature
 ```
+---
 
-Thanks,
+## Attribution and Credit
+
+All contributors will be acknowledged.
+Significant conceptual or scientific contributions may lead to co-authorship in future publications or preprints, if applicable.
+
+
+Thanks for your interest in this project,
 Zobeewan
