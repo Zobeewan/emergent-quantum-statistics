@@ -16,12 +16,12 @@ High-performance 2D pilot-wave simulation using **Taichi (GPU parallelization)**
 
 ## ⏱ Key Scaling Parameter
 
-- **N_TOTAL_RUNS** controls the number of individual particles simulate
-  (minimum step is bound to **500 runs** (~5 minutes))
-  - Recommended for Colab (free): **~10,000 runs**
-  - Higher values may hit the **daily usage limit**
-- ~10 minutes per **1,000 runs**
+**N_TOTAL_RUNS** controls the number of individual particles simulate
+(minimum step is bound to **500 runs** (~5 minutes))
 - ⚠️ Increasing `N_TOTAL_RUNS` improves convergence but increases runtime linearly
+- Recommended for Colab (free): **~10,000 runs**
+- Higher values may hit the **daily usage limit**
+- ~10 minutes per **1,000 runs**
 
 ---
 
