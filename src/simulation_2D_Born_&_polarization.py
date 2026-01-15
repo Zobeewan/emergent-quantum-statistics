@@ -72,8 +72,8 @@ def evolve_field_2d(psi, psi_new, lap_buffer, x_p, y_p,
 
     # 3) Mobile localized source 
     cutoff = int(5 * sigma / dx)
-    ix = int((x_p - x_min) / dx)
-    iy = int((y_p - y_min) / dy)
+    ix = int(round((x_p - x_min) / dx))
+    iy = int(round((y_p - y_min) / dy))
 
     i_min = max(1, ix - cutoff)
     i_max = min(Nx-1, ix + cutoff + 1)
@@ -102,8 +102,8 @@ def get_guidance_2d(psi, x_p, y_p, x_min, y_min, dx, dy, Nx, Ny, epsilon):
         gx  : ∂_x phase (approx.)
         gy  : ∂_y phase (approx.)
     """
-    ix = int((x_p - x_min) / dx)
-    iy = int((y_p - y_min) / dy)
+    ix = int(round((x_p - x_min) / dx))
+    iy = int(round((y_p - y_min) / dy))
 
     # Boundary safety
     if not (1 <= ix < Nx-2 and 1 <= iy < Ny-2):
