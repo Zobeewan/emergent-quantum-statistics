@@ -140,7 +140,7 @@ def get_guidance_2d(psi, x_p, y_p, x_min, y_min, dx, dy, Nx, Ny, epsilon):
 @njit(fastmath=True)
 def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
                          dt, dx, dy, omega, gamma, d_psi, emit_amp, sigma,
-                         alpha, D_part, epsilon, x_min, x_max, y_min, y_max, 
+                         alpha, D_x, epsilon, x_min, x_max, y_min, y_max, 
                          Nx, Ny):
     """
     Simulate a single 2D particle coupled to its own pilot-wave field.
@@ -209,8 +209,8 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
             drift_x, drift_y = 0.0, 0.0
 
         # Overdamped Langevin step
-        noise_x = np.sqrt(2 * D_part * dt) * np.random.randn()
-        noise_y = np.sqrt(2 * D_part * dt) * np.random.randn()
+        noise_x = np.sqrt(2 * D_x * dt) * np.random.randn()
+        noise_y = np.sqrt(2 * D_x * dt) * np.random.randn()
 
         x_p += drift_x * dt + noise_x
         y_p += drift_y * dt + noise_y
@@ -264,7 +264,7 @@ def worker_particle_2d(seed, particle_id, x_space, y_space):
     pos_x, pos_y, psi_acc, psi2_acc = simulate_particle_2d(
         x_init, y_init, CFG.N_steps, CFG.thermalization, CFG.SUBSAMPLE,
         CFG.dt, CFG.dx, CFG.dy, CFG.omega, CFG.gamma, CFG.D_psi, CFG.emit_amp, CFG.sigma_emit_scaled,
-        CFG.alpha, CFG.D_part, CFG.epsilon, CFG.x_min, CFG.x_max, CFG.y_min, CFG.y_max,
+        CFG.alpha, CFG.D_x, CFG.epsilon, CFG.x_min, CFG.x_max, CFG.y_min, CFG.y_max,
         CFG.Nx, CFG.Ny
     )
 
@@ -337,7 +337,7 @@ def run_born_simulation_2d():
     print(f"  - dx = {CFG.dx:.3f}, dy = {CFG.dy:.3f}, dt = {CFG.dt}")
     print(f"\nPhysical params :")
     print(f"  ω={CFG.omega}, γ={CFG.gamma}, D_ψ={CFG.D_psi}")
-    print(f"  α={CFG.alpha}, D_part={CFG.D_part} {'✓ ACTIVE' if CFG.D_part > 0 else '⚠️ INACTIVE'}")
+    print(f"  α={CFG.alpha}, D_x={CFG.D_x} {'✓ ACTIVE' if CFG.D_x > 0 else '⚠️ INACTIVE'}")
     print(f"  emit_amp={CFG.emit_amp}, σ={CFG.sigma_emit_scaled :.2f}")
     print("="*70)
 
