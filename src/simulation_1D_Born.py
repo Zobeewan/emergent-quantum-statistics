@@ -273,7 +273,7 @@ def run_born_simulation():
     psi2_acc /= total_samples
     
     born = psi2_acc  # √⟨|ψ|²⟩
-    born /= np.trapz(born, x_space)
+    born /= np.trapezoid(born, x_space)
     
     return x_space, rho, born, psi_acc
 
@@ -288,8 +288,8 @@ def compute_hbar_effective(x_space, rho, psi_acc):
     dx_local = x_space[1] - x_space[0]
     
     # 1. Position
-    mean_x = np.trapz(x_space * rho, x_space)
-    sigma_x = np.sqrt(np.trapz((x_space - mean_x)**2 * rho, x_space))
+    mean_x = np.trapezoid(x_space * rho, x_space)
+    sigma_x = np.sqrt(np.trapezoid((x_space - mean_x)**2 * rho, x_space))
     
     # 2. Momentum  (FFT)
     psi_normalized = psi_acc / np.sqrt(np.sum(np.abs(psi_acc)**2) * dx_local)
@@ -298,10 +298,10 @@ def compute_hbar_effective(x_space, rho, psi_acc):
     k_vals = 2 * np.pi * freqs
     
     rho_k = np.abs(psi_k)**2
-    rho_k /= np.trapz(rho_k, k_vals)
+    rho_k /= np.trapezoid(rho_k, k_vals)
     
-    mean_k = np.trapz(k_vals * rho_k, k_vals)
-    sigma_k = np.sqrt(np.trapz((k_vals - mean_k)**2 * rho_k, k_vals))
+    mean_k = np.trapezoid(k_vals * rho_k, k_vals)
+    sigma_k = np.sqrt(np.trapezoid((k_vals - mean_k)**2 * rho_k, k_vals))
     
     # 3. Effective ℏ from Heisenberg
     # For a minimal state: Δx·Δp = ℏ/2 (with p = ℏk)
@@ -333,7 +333,7 @@ def compare_schrodinger(x_space, sigma_x_model):
   
     dx_local = x_space[1] - x_space[0]
     psi_qm = np.exp(-0.5*(x_space/2.0)**2).astype(np.complex128)
-    psi_qm /= np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
+    psi_qm /= np.sqrt(np.trapezoid(np.abs(psi_qm)**2, x_space))
         
     best_error = np.inf
     best_step = 0
@@ -349,14 +349,14 @@ def compare_schrodinger(x_space, sigma_x_model):
         psi_qm += CFG.dt * (1j * CFG.omega * lap_qm)
         
         # Normalization
-        norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
+        norm = np.sqrt(np.trapezoid(np.abs(psi_qm)**2, x_space))
         if norm > 0: psi_qm /= norm
         
         # Current width
         rho_qm_temp = np.abs(psi_qm)**2
-        rho_qm_temp /= np.trapz(rho_qm_temp, x_space)
-        mean_x_qm = np.trapz(x_space * rho_qm_temp, x_space)
-        sigma_x_qm = np.sqrt(np.trapz((x_space - mean_x_qm)**2 * rho_qm_temp, x_space))
+        rho_qm_temp /= np.trapezoid(rho_qm_temp, x_space)
+        mean_x_qm = np.trapezoid(x_space * rho_qm_temp, x_space)
+        sigma_x_qm = np.sqrt(np.trapezoid((x_space - mean_x_qm)**2 * rho_qm_temp, x_space))
 
         diff_sigma = abs(sigma_x_qm - sigma_x_model)
         
@@ -375,7 +375,7 @@ def compare_schrodinger(x_space, sigma_x_model):
         steps += 1
     
     rho_qm = np.abs(best_psi)**2
-    rho_qm /= np.trapz(rho_qm, x_space)
+    rho_qm /= np.trapezoid(rho_qm, x_space)
     
     return rho_qm
 
@@ -388,7 +388,7 @@ def plot_results(x_space, rho, born, rho_qm):
     Comparative density plots.
     """
     corr = np.corrcoef(rho, born)[0,1]
-    error_L1 = 0.5 * np.trapz(np.abs(rho - born), x_space)
+    error_L1 = 0.5 * np.trapezoid(np.abs(rho - born), x_space)
     
     print(f"\n{'='*70}")
     print(f"CONVERGENCE TOWARD |ψ|²")
