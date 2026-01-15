@@ -201,10 +201,10 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
             drift_y = alpha * weight * gy
 
             # Clip for stability
-            if drift_x > 5.0: drift_x = 5.0
-            elif drift_x < -5.0: drift_x = -5.0
-            if drift_y > 5.0: drift_y = 5.0
-            elif drift_y < -5.0: drift_y = -5.0
+            if drift_x > 10.0: drift_x = 10.0
+            elif drift_x < -10.0: drift_x = -10.0
+            if drift_y > 10.0: drift_y = 10.0
+            elif drift_y < -10.0: drift_y = -10.0
         else:
             drift_x, drift_y = 0.0, 0.0
 
