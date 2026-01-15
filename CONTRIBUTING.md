@@ -32,7 +32,8 @@ No conclusion is assumed a priori.
 
 ### Main needed upgrades to improve the model (There probably is a required order for it to properly work)
 
-  * Parameter-space exploration to find (with a sufficiently close precision) the properties of void and particles, witch allow to match quantum prediction, 
+  * Parameter-space exploration to find (with a sufficiently close precision) the properties of void and particles, witch allow to match quantum prediction,
+  * Extended simulation to 3D,
   * Change scale parameters to match known physical reality (e.g. alpha ≈ 1/137),
   * Add energy transfert and conservation,
   * Modify the Ginzburg-Landau equation to a relativistic one (with real speed limit),
