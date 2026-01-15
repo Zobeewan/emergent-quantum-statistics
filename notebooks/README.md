@@ -10,6 +10,6 @@ Increase N_TOTAL_RUNS for better statistical convergence.
 
 But for Google Colab free use only, 10,000 is usually near the free daily limit
 
-Reduce it to shorten simulation time (minimum step is bound to 500 ≈ 5min), 
-Every 1,000 runs ≈ 10min
+Reduce it to shorten simulation time, every 1,000 runs ≈ 10min (minimum step is bound to 500 ≈ 5min)
+
 To simulate less than 500, up to a single particle, use `src/simulation_2D_Born_&_polarization.py` instead
