@@ -37,6 +37,12 @@ except ImportError:
     from config import Born_2D_Config
 CFG = Born_2D_Config()
 
+"""
+Parameters are loaded from config.py.
+
+To change physics or simulation settings, edit 'src/config.py' 
+"""
+
 # ===============================
 # NUMERICAL CORE (NUMBA)
 # ===============================
