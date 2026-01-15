@@ -21,7 +21,7 @@ High-performance 2D pilot-wave simulation using **Taichi (GPU parallelization)**
   - Recommended for Colab (free): **~10,000 runs**
   - Higher values may hit the **daily usage limit**
 - ~10 minutes per **1,000 runs**
-- ⚠️ Important Notes: Increasing `N_TOTAL_RUNS` improves convergence but increases runtime linearly
+- ⚠️ Increasing `N_TOTAL_RUNS` improves convergence but increases runtime linearly
 
 ---
 
