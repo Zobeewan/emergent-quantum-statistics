@@ -165,3 +165,16 @@ The default values are tuned to reach the quantum relaxation regime.
 ```bash
 src/simulation_1D_Born.py
 ```
+
+----------
+
+## ⚠️ Scientific Disclaimer
+
+This repository presents exploratory numerical simulations in the context of quantum foundations.
+
+The results reported here do **not** claim to reproduce quantum mechanics in full generality.
+
+Observed features such as Born-like relaxation or Pauli-like anticorrelations should be interpreted as **emergent behaviors within a specific class of pilot-wave models**, under specific assumptions, parameter regimes, and numerical constraints.
+
+All conclusions are model-dependent and subject to further validation, falsification, or reinterpretation.
+Identifying limitations, inconsistencies, or failures of the model is considered a valuable outcome of this work.
