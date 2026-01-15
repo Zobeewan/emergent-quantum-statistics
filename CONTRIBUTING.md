@@ -1,6 +1,6 @@
 # Contributing to emergent-quantum-statistics
 
-Thank you for your interest in this project — contributions, critiques, and discussions are very welcome!  
+Thank you for your interest in this project, contributions, critiques, and discussions are very welcome!  
 This project is developed by an independent researcher and aims to remain open, transparent, and reproducible.  
 I'm glad you're reading this, because I need physicists and developers willing to help test, improve, or challenge the model.
 
