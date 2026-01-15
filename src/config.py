@@ -16,7 +16,7 @@ class Base_Config:                # (Opti for Born 1D)
     # --- Simulation Control ---
     N_steps: int = 40000          # Steps per particle
     thermalization: int = 10000   # Steps to ignore (warmup)
-    N_runs: int = 3000            # Number of independent simulated particles
+    N_runs: int = 4000            # Number of independent simulated particles
     N_CORES: int = -1             # 0 = use all available cores, -1 = keep 1 cores free (or more)
     SUBSAMPLE: int = 1            # 1 = keep all points, 10 = keep 1 point out of 10 (avoid use if possible)
     
@@ -51,7 +51,7 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
     x_max: float = 150.0           # Spatial extent (x) (right)
     
     # --- Simulation Control ---
-    N_runs: int = 1200             # Number of independent simulated particles
+    N_runs: int = 3000             # Number of independent simulated particles
 
     
     # --- Initial configuration of particle positions --- 
