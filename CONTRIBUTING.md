@@ -42,7 +42,7 @@ No conclusion is assumed a priori.
 
   * Bosonic tests (1D)
   * Tunnelling-like effects tests (1D)
-  * Hydrogen atome modelisation (2D)
+  * Hydrogen atom modelisation (2D)
 
 ### Other upgrade idea 
 
