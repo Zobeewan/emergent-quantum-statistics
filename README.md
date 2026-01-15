@@ -34,20 +34,20 @@ By statistical convergence and Ergodicity, from singles particle dynamics
 This model couples a stochastic point particle to a complex scalar field (pilot wave):
 - The wave evolves according to a complex Ginzburg-Landau equation (Schrödinger-like).
 - The particle is guided by the local phase gradient of the field (Langevin dynamics).
-- The particle acts as a moving source, continuously interecting and fueling its own pilot wave (feedback).
+- The particle acts as a moving source, continuously interacting and fueling its own pilot wave (feedback).
 - The system is in a state of free expansion (diffusion).
     
 **Key Result:**
 
 - The simulation demonstrates that the particle's statistical distribution ρ(x)
   dynamically conforms to the shape of the spread wave packet |ψ|²,
-  with an high correlation and a low error L1.
+  with a high correlation and a low error L1.
 
 - In other words, the probability density of the particle's position converges towards
   the intensity |ψ|² of the field, validating the dynamical "quantum relaxation"
   towards Born's Rule without axiomatic postulates.
 
-- It validates the emergence of Born's Rule from a purely deterministic, local, and realistic dynamics.
+- It supports the emergence of Born's Rule from a purely deterministic, and realistic dynamics.
 
 **📁 Script:** `src/simulation_1D_Born.py`  
 
@@ -60,7 +60,7 @@ This model couples a stochastic point particle to a complex scalar field (pilot 
 **Objective:** 
 
 This simulation investigates whether fermionic-like exclusion effects
-can emerge dynamically from a purely local pilot-wave dynamics, without
+can emerge dynamically from a local pilot-wave dynamics, without
 imposing antisymmetry, exchange rules, or quantum statistics by hand.
 
 The model extends a previously validated single-particle framework
@@ -111,7 +111,7 @@ to reveals local vectorial structures of the field (vortices).
 
 - The particle correctly samples the 2D field,
   with empirical density ρ(x,y) ≈ |(x,y)|²
-- Although ψ psi is a scalar field, analysis of the probability current
+- Although ψ is a scalar field, analysis of the probability current
   reveals local vectorial structures (vortices),
   suggesting a possible connection with intrinsic angular momentum (spin)
 
@@ -122,7 +122,7 @@ Two implementations are available:
 
 - **CPU Version:** `src/simulation_2D_Born_&_polarization.py`
 
-  Reference implementation (slow, not recommanded for high N_runs with high correlation)
+  Reference implementation (slow, not recommended for high N_runs with high correlation)
 
   **⏱ Runtime:** ~1-5 hours (depending on params and CPU cores)
   
