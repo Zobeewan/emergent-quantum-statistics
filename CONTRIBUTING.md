@@ -19,10 +19,11 @@ No conclusion is assumed a priori.
 
 ### Initial goals:
   * Extend de Broglie–Bohm–type pilot-wave models by introducing **bidirectional particle–wave coupling** (retroaction).
-  * Investigate whether such dynamics is enough to **naturally relax toward quantum-like statistics**, and to explain/understand quantum behavior and assumptions
-    * e.g. Born rule distributions and Pauli-like exclusion 
+  * Investigate whether such dynamics is enough to **naturally relax toward quantum-like statistics**
+    * e.g. Born rule distributions and Pauli-like exclusion
+  * Explain/Understand quantum behaviors and assumptions
   
-### Long-term goals
+### Very long-term goals:
   * Hopefully build a purely local hidden-variable model, realistic and deterministic (and stochastic)
 
 ---
