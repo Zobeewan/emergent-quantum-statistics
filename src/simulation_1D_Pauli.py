@@ -541,12 +541,12 @@ def run_pauli_simulation():
     
     # Born densities extracted from time-averaged guiding fields
     born_p1 = born1_mean                    
-    born_p1 /= np.trapz(born_p1, x_space)
+    born_p1 /= np.trapezoid(born_p1, x_space)
     
     born_p2 = born2_mean                    
-    born_p2 /= np.trapz(born_p2, x_space)
+    born_p2 /= np.trapezoid(born_p2, x_space)
         
-    integral_born = np.trapz(born_sum_mean, x_space)        
+    integral_born = np.trapezoid(born_sum_mean, x_space)        
     born_sum = 2 * (born_sum_mean / integral_born)          # The total Born density is normalized to 2 (because the system contains two particles)
 
     r_centers = 0.5 * (bin_edges_dist[:-1] + bin_edges_dist[1:])
@@ -585,8 +585,8 @@ def compute_theoretical_densities(x_space, phi1, phi2):
     Nx = len(x_space)
     
     # Normalization of individual states
-    norm1 = np.sqrt(np.trapz(np.abs(phi1)**2, x_space))
-    norm2 = np.sqrt(np.trapz(np.abs(phi2)**2, x_space))
+    norm1 = np.sqrt(np.trapezoid(np.abs(phi1)**2, x_space))
+    norm2 = np.sqrt(np.trapezoid(np.abs(phi2)**2, x_space))
     
     if norm1 > 0:
         phi1 = phi1 / norm1
@@ -610,17 +610,17 @@ def compute_theoretical_densities(x_space, phi1, phi2):
     
     # Marginal densities obtained by integrating over the other particle.
     # Note: Pauli exclusion affects correlations, not one-particle marginals.
-    rho1_fermion = np.trapz(rho_2d_fermion, x_space, axis=1)  # Integrates on x₂
-    rho2_fermion = np.trapz(rho_2d_fermion, x_space, axis=0)  # Integrates on x₁
+    rho1_fermion = np.trapezoid(rho_2d_fermion, x_space, axis=1)  # Integrates on x₂
+    rho2_fermion = np.trapezoid(rho_2d_fermion, x_space, axis=0)  # Integrates on x₁
     
-    rho1_boson = np.trapz(rho_2d_boson, x_space, axis=1)
-    rho2_boson = np.trapz(rho_2d_boson, x_space, axis=0)
+    rho1_boson = np.trapezoid(rho_2d_boson, x_space, axis=1)
+    rho2_boson = np.trapezoid(rho_2d_boson, x_space, axis=0)
     
     # Final Normalization
-    rho1_fermion /= np.trapz(rho1_fermion, x_space)
-    rho2_fermion /= np.trapz(rho2_fermion, x_space)
-    rho1_boson /= np.trapz(rho1_boson, x_space)
-    rho2_boson /= np.trapz(rho2_boson, x_space)
+    rho1_fermion /= np.trapezoid(rho1_fermion, x_space)
+    rho2_fermion /= np.trapezoid(rho2_fermion, x_space)
+    rho1_boson /= np.trapezoid(rho1_boson, x_space)
+    rho2_boson /= np.trapezoid(rho2_boson, x_space)
     
     # Total Theoretical Densities
     rho_total_fermion = rho1_fermion + rho2_fermion
@@ -653,7 +653,7 @@ def compare_schrodinger(x_space, sigma_target):
     """
     dx_local = x_space[1] - x_space[0]
     psi_qm = np.exp(-0.5*(x_space/2.0)**2).astype(np.complex128)
-    psi_qm /= np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
+    psi_qm /= np.sqrt(np.trapezoid(np.abs(psi_qm)**2, x_space))
 
     best_error = np.inf
     best_step = 0
@@ -671,15 +671,15 @@ def compare_schrodinger(x_space, sigma_target):
         psi_qm += CFG.dt * (1j * CFG.omega * lap_qm)
         
         # Normalization
-        norm = np.sqrt(np.trapz(np.abs(psi_qm)**2, x_space))
+        norm = np.sqrt(np.trapezoid(np.abs(psi_qm)**2, x_space))
         if norm > 0:
             psi_qm /= norm
         
         # Current width
         rho_qm_temp = np.abs(psi_qm)**2
-        rho_qm_temp /= np.trapz(rho_qm_temp, x_space)
-        mean_x = np.trapz(x_space * rho_qm_temp, x_space)
-        sigma_x = np.sqrt(np.trapz((x_space - mean_x)**2 * rho_qm_temp, x_space))
+        rho_qm_temp /= np.trapezoid(rho_qm_temp, x_space)
+        mean_x = np.trapezoid(x_space * rho_qm_temp, x_space)
+        sigma_x = np.sqrt(np.trapezoid((x_space - mean_x)**2 * rho_qm_temp, x_space))
 
         diff_sigma = abs(sigma_x - sigma_target)
         
@@ -696,7 +696,7 @@ def compare_schrodinger(x_space, sigma_target):
         steps += 1
     
     rho_qm = np.abs(best_psi)**2
-    rho_qm /= np.trapz(rho_qm, x_space)
+    rho_qm /= np.trapezoid(rho_qm, x_space)
  
     return rho_qm
 
@@ -724,39 +724,39 @@ def analyze_results(data, theory):
     # ========================================
     # vs |ψ1|²
     corr_p1_born = np.corrcoef(data['rho_p1_obs'], data['born_p1'])[0, 1]
-    error_L1_p1_born = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - data['born_p1']), x_space)
+    error_L1_p1_born = 0.5 * np.trapezoid(np.abs(data['rho_p1_obs'] - data['born_p1']), x_space)
     
     # vs Theoretical fermions
     corr_p1_fermion = np.corrcoef(data['rho_p1_obs'], theory['rho1_fermion'])[0, 1]
-    error_L1_p1_fermion = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_fermion']), x_space)
+    error_L1_p1_fermion = 0.5 * np.trapezoid(np.abs(data['rho_p1_obs'] - theory['rho1_fermion']), x_space)
     
     # vs Theoretical bosons
     corr_p1_boson = np.corrcoef(data['rho_p1_obs'], theory['rho1_boson'])[0, 1]
-    error_L1_p1_boson = 0.5 * np.trapz(np.abs(data['rho_p1_obs'] - theory['rho1_boson']), x_space)
+    error_L1_p1_boson = 0.5 * np.trapezoid(np.abs(data['rho_p1_obs'] - theory['rho1_boson']), x_space)
     
     # ========================================
     # 2. PARTICLE 2
     # ========================================
     corr_p2_born = np.corrcoef(data['rho_p2_obs'], data['born_p2'])[0, 1]
-    error_L1_p2_born = 0.5 * np.trapz(np.abs(data['rho_p2_obs'] - data['born_p2']), x_space)
+    error_L1_p2_born = 0.5 * np.trapezoid(np.abs(data['rho_p2_obs'] - data['born_p2']), x_space)
     
     corr_p2_fermion = np.corrcoef(data['rho_p2_obs'], theory['rho2_fermion'])[0, 1]
-    error_L1_p2_fermion = 0.5 * np.trapz(np.abs(data['rho_p2_obs'] - theory['rho2_fermion']), x_space)
+    error_L1_p2_fermion = 0.5 * np.trapezoid(np.abs(data['rho_p2_obs'] - theory['rho2_fermion']), x_space)
     
     corr_p2_boson = np.corrcoef(data['rho_p2_obs'], theory['rho2_boson'])[0, 1]
-    error_L1_p2_boson = 0.5 * np.trapz(np.abs(data['rho_p2_obs'] - theory['rho2_boson']), x_space)
+    error_L1_p2_boson = 0.5 * np.trapezoid(np.abs(data['rho_p2_obs'] - theory['rho2_boson']), x_space)
     
     # ========================================
     # 3. TOTAL DENSITY 
     # ========================================
     corr_total_born = np.corrcoef(data['rho_total_obs'], data['born_sum'])[0, 1]
-    error_L1_total_born = 0.5 * np.trapz(np.abs(data['rho_total_obs'] - data['born_sum']), x_space)
+    error_L1_total_born = 0.5 * np.trapezoid(np.abs(data['rho_total_obs'] - data['born_sum']), x_space)
     
     corr_total_fermion = np.corrcoef(data['rho_total_obs'], theory['rho_total_fermion'])[0, 1]
-    error_L1_total_fermion = 0.5 * np.trapz(np.abs(data['rho_total_obs'] - theory['rho_total_fermion']), x_space)
+    error_L1_total_fermion = 0.5 * np.trapezoid(np.abs(data['rho_total_obs'] - theory['rho_total_fermion']), x_space)
     
     corr_total_boson = np.corrcoef(data['rho_total_obs'], theory['rho_total_boson'])[0, 1]
-    error_L1_total_boson = 0.5 * np.trapz(np.abs(data['rho_total_obs'] - theory['rho_total_boson']), x_space)
+    error_L1_total_boson = 0.5 * np.trapezoid(np.abs(data['rho_total_obs'] - theory['rho_total_boson']), x_space)
     
     # ========================================
     # 4. g(r) FONCTION
@@ -776,13 +776,13 @@ def analyze_results(data, theory):
     # 5. SCHRÖDINGER
     # ========================================
     # P1
-    mean_x_p1 = np.trapz(x_space * data['born_p1'], x_space)
-    sigma_x_p1 = np.sqrt(np.trapz((x_space - mean_x_p1)**2 * data['born_p1'], x_space))
+    mean_x_p1 = np.trapezoid(x_space * data['born_p1'], x_space)
+    sigma_x_p1 = np.sqrt(np.trapezoid((x_space - mean_x_p1)**2 * data['born_p1'], x_space))
     rho_qm_p1 = compare_schrodinger(x_space, sigma_x_p1)
     
     # P2
-    mean_x_p2 = np.trapz(x_space * data['born_p2'], x_space)
-    sigma_x_p2 = np.sqrt(np.trapz((x_space - mean_x_p2)**2 * data['born_p2'], x_space))
+    mean_x_p2 = np.trapezoid(x_space * data['born_p2'], x_space)
+    sigma_x_p2 = np.sqrt(np.trapezoid((x_space - mean_x_p2)**2 * data['born_p2'], x_space))
     rho_qm_p2 = compare_schrodinger(x_space, sigma_x_p2)
     
     # Total
