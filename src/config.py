@@ -102,3 +102,5 @@ class Born_2D_Config(Base_Config): # (Opti for Born 2D)
         self.y = np.linspace(self.y_min, self.y_max, self.Ny)
         self.dx = self.x[1] - self.x[0]                              # Space step
         self.dy = self.y[1] - self.y[0]
+        # Adjust source width relative to grid
+        self.sigma_emit_scaled = self.dx * self.dy * 3.0
