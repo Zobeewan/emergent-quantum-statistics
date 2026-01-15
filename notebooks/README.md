@@ -6,7 +6,7 @@ High-performance implementation using Taichi (GPU parallelization).
 
 The first cell is optional, use it if you want to save your results in your Google Drive
 
-Increase N_TOTAL_RUNS at the top for better statistical convergence. 
+Increase N_TOTAL_RUNS for better statistical convergence. 
 
 But for Google Colab free use only, 10,000 is usually near the free daily limit
 
