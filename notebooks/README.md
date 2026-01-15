@@ -1,15 +1,35 @@
-# Born Rule & Polarization in 2D
-High-performance implementation using Taichi (GPU parallelization).
+# Born Rule & Polarization in 2D (GPU)
+High-performance 2D pilot-wave simulation using **Taichi (GPU parallelization)**.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zobeewan/Born_Rule_emergence-Pilot_Wave/blob/main/notebooks/simulation_2D_Born_&_polarization_GPU_Colab.ipynb)   
 **⏱ Runtime:** ~20-100 minutes (depending on params)    
 
-The first cell is optional, use it if you want to save your results in your Google Drive
+---
 
-Increase N_TOTAL_RUNS for better statistical convergence. 
+## ▶️ How to run
 
-But for Google Colab free use only, 10,000 is usually near the free daily limit
+- Open the notebook in **Google Colab**
+- (Optional) Run the **first cell** if you want to save results to your Google Drive
+- Run all cells sequentially
 
-Reduce it to shorten simulation time, every 1,000 runs ≈ 10min (minimum step is bound to 500 ≈ 5min)
+---
+
+## ⏱ Key Scaling Parameter
+
+- **N_TOTAL_RUNS** controls the number of individual particles simulate
+  (minimum step is bound to **500 runs** (~5 minutes))
+  - Recommended for Colab (free): **~10,000 runs**
+  - Higher values may hit the **daily usage limit**
+- ~10 minutes per **1,000 runs**
+- ⚠️ Important Notes: Increasing `N_TOTAL_RUNS` improves convergence but increases runtime linearly
+
+---
+
+## 🖥 CPU Alternative
+
+For small runs (≤500 particles), up to single-particle tests, use the CPU version instead:
+```text
+src/simulation_2D_Born_&_polarization.py
+```
 
 To simulate less than 500, up to a single particle, use `src/simulation_2D_Born_&_polarization.py` instead
