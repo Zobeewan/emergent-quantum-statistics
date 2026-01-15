@@ -80,7 +80,7 @@ class Pauli_Config(Base_Config):   # (Opti for pauli 1D)
 
 
 # ===============================
-# CONFIG BRON 2D
+# CONFIG BORN 2D
 # ===============================
 class Born_2D_Config(Base_Config): # (Opti for Born 2D)
     # --- Space & Time ---
