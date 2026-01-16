@@ -501,7 +501,7 @@ def plot_results_2d_improved(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, c
 
     # 4) Phase current (quiver)
     ax4 = plt.subplot(2, 3, 4)
-    step = 2
+    step = 3
     X_sub = X[::step, ::step]
     Y_sub = Y[::step, ::step]
     Jx_sub = J_x[::step, ::step]
