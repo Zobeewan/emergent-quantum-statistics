@@ -429,13 +429,18 @@ def analyze_results(X, Y, x_space, y_space, rho, born, psi_eff):
     Lz_field = X * J_y - Y * J_x
     Lz_mean = np.trapz(np.trapz(Lz_field * born, x_space, axis=0), y_space)
 
+    # Mean magnitude of the phase gradient
+    J_magnitude = np.sqrt(J_x**2 + J_y**2)
+    weighted_avg_J = np.sum(J_magnitude) * CFG.dx * CFG.dy
+    
     print("\n" + "="*70)
     print("CONVERGENCE TOWARD |ψ|²")
     print("="*70)
     print(f"ρ vs |ψ|² correlation : {corr:.4f}")
     print(f"L¹ error : {error_L1:.6f}")
     print(f"<Lz> (quantum-like) : {Lz_mean:.3f}")
-
+    print(f"Average J flow: {weighted_avg_J:.4f}")
+    
     return corr, error_L1, J_x, J_y
 
 
