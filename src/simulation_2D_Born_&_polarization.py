@@ -450,7 +450,7 @@ def analyze_results(X, Y, x_space, y_space, rho, born, psi_eff):
 # VISUALIZATION
 # ===============================
 
-def plot_results_2d_improved(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, corr, error_L1):
+def plot_results_2d(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, corr, error_L1):
     """
     Create a 2×3 figure showing:
       1) empirical density ρ(x,y)
@@ -582,7 +582,7 @@ if __name__ == "__main__":
     corr, error_L1, J_x, J_y = analyze_results(X, Y, x_space, y_space, rho, born, psi_eff)
 
     # Plot
-    plot_results_2d_improved(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, corr, error_L1)
+    plot_results_2d(X, Y, rho, born, psi_eff, J_x, J_y, trajectories, corr, error_L1)
 
     print("\n" + "="*70)
     print("✓ 2D SIMULATION COMPLETED")
