@@ -183,7 +183,8 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
                                   emit_amp, sigma, x_min, y_min, Nx, Ny)
         psi[:, :] = psi_new[:, :]
 
-        # Soft normalization (stability)
+        """
+        # Normalization for stability (if needed when changing parameters)
         norm2 = 0.0
         for i in range(Nx):
             for j in range(Ny):
@@ -195,7 +196,8 @@ def simulate_particle_2d(x_init, y_init, N_steps, thermalization, subsample,
             for i in range(Nx):
                 for j in range(Ny):
                     psi[i,j] *= factor
-
+        """
+        
         # Guidance: local amplitude and phase gradient
         amp, gx, gy = get_guidance_2d(psi, x_p, y_p, x_min, y_min,
                                       dx, dy, Nx, Ny, epsilon)
