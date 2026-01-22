@@ -344,9 +344,13 @@ def run_born_simulation_2d():
     print(f"  - CFL = {cfl:.4f} (should be < 0.5)")
     print(f"  - dx = {CFG.dx:.3f}, dy = {CFG.dy:.3f}, dt = {CFG.dt}")
     print(f"\nPhysical params :")
-    print(f"  ω={CFG.omega}, γ={CFG.gamma}, D_ψ={CFG.D_psi}")
-    print(f"  α={CFG.alpha}, D_x={CFG.D_x} {'✓ ACTIVE' if CFG.D_x > 0 else '⚠️ INACTIVE'}")
-    print(f"  emit_amp={CFG.emit_amp}, σ={CFG.sigma_emit_scaled :.2f}")
+    print(f"  - ω={CFG.omega}")
+    print(f"  - γ={CFG.gamma}")
+    print(f"  - D_ψ={CFG.D_psi}")
+    print(f"  - α={CFG.alpha}")
+    print(f"  - D_x={CFG.D_x}")
+    print(f"  - emit_amp={CFG.emit_amp}")
+    print(f"  - σ={CFG.sigma_emit_scaled :.2f}")
     print("="*70)
 
     if cfl >= 0.5:
