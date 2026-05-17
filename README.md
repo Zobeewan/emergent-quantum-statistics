@@ -1,5 +1,7 @@
 # Emergent Quantum Statistics in Stochastic Pilot-Wave Dynamics
 
+[![DOI](https://zenodo.org/badge/1129929103.svg)](https://doi.org/10.5281/zenodo.20260635)
+
 **Christian Revoire**  
 Independent Researcher — January 2026
 
